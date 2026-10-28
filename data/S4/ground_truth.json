@@ -1,0 +1,7 @@
+{
+  "scenario": "S4",
+  "description": "Benign activity only; used to test false positives.",
+  "normal_line_count": 500,
+  "malicious_line_ids": [],
+  "labels": []
+}

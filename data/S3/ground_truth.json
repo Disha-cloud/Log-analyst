@@ -1,0 +1,19 @@
+{
+  "scenario": "S3",
+  "description": "Unusual-hour login followed by a large server response.",
+  "normal_line_count": 500,
+  "malicious_line_ids": [
+    "L0501",
+    "L0502"
+  ],
+  "labels": [
+    {
+      "line_id": "L0501",
+      "attack_stage": "unusual_hour_login"
+    },
+    {
+      "line_id": "L0502",
+      "attack_stage": "large_data_transfer_suspected"
+    }
+  ]
+}

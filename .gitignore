@@ -1,0 +1,25 @@
+
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# Secrets and local environment files
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Test and tool caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+

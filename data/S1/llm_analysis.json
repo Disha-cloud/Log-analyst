@@ -1,0 +1,40 @@
+{
+  "summary": "The findings indicate a pattern of brute force attempts followed by a successful login and subsequent sudo activity.",
+  "severity": "medium",
+  "attack_chain": [
+    {
+      "stage": "authentication_attempt",
+      "mitre_id": "T1110",
+      "explanation": "Multiple failed login attempts from the same IP address (10.0.5.23) within a short period of time.",
+      "evidence_ids": [
+        "auth.log:L0501",
+        "auth.log:L0502",
+        "auth.log:L0503",
+        "auth.log:L0504",
+        "auth.log:L0505",
+        "auth.log:L0506"
+      ]
+    },
+    {
+      "stage": "successful_authentication",
+      "mitre_id": "",
+      "explanation": "A successful login from the same IP address (10.0.5.23) to the root account.",
+      "evidence_ids": [
+        "auth.log:L0507"
+      ]
+    },
+    {
+      "stage": "privileged_activity",
+      "mitre_id": "T1548.003",
+      "explanation": "The user root performed sudo activity within 10 minutes of the successful login.",
+      "evidence_ids": [
+        "auth.log:L0508"
+      ]
+    }
+  ],
+  "mitigations": [
+    "Implement account lockout policies to prevent brute force attacks.",
+    "Monitor sudo activity and enforce strict sudo rules to prevent privilege escalation.",
+    "Review and update sudoers file to restrict sudo privileges as necessary."
+  ]
+}

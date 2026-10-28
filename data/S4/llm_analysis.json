@@ -1,0 +1,8 @@
+{
+  "summary": "No suspicious groups were identified by the rules.",
+  "severity": "low",
+  "attack_chain": [],
+  "mitigations": [
+    "Continue monitoring and periodically review detection coverage."
+  ]
+}

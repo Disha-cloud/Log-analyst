@@ -1,0 +1,97 @@
+{
+  "scenario": "S1",
+  "total_claims": 3,
+  "verified_claims": 2,
+  "unverified_claims": 1,
+  "claims": [
+    {
+      "claim_number": 1,
+      "stage": "authentication_attempt",
+      "explanation": "Multiple failed login attempts from the same IP address (10.0.5.23) within a short period of time.",
+      "evidence_ids": [
+        "auth.log:L0501",
+        "auth.log:L0502",
+        "auth.log:L0503",
+        "auth.log:L0504",
+        "auth.log:L0505",
+        "auth.log:L0506"
+      ],
+      "status": "verified",
+      "claim_type": "brute_force",
+      "reason": "All cited lines support the claimed event.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0501",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0502",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0503",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0504",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0505",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0506",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        }
+      ]
+    },
+    {
+      "claim_number": 2,
+      "stage": "successful_authentication",
+      "explanation": "A successful login from the same IP address (10.0.5.23) to the root account.",
+      "evidence_ids": [
+        "auth.log:L0507"
+      ],
+      "status": "verified",
+      "claim_type": "successful_authentication",
+      "reason": "All cited lines support the claimed event.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0507",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        }
+      ]
+    },
+    {
+      "claim_number": 3,
+      "stage": "privileged_activity",
+      "explanation": "The user root performed sudo activity within 10 minutes of the successful login.",
+      "evidence_ids": [
+        "auth.log:L0508"
+      ],
+      "status": "unverified",
+      "claim_type": "successful_authentication",
+      "reason": "One or more cited lines failed verification.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0508",
+          "status": "fail",
+          "reason": "The line does not contain the expected event indicator."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Pattern matches are heuristic evidence checks, not proof of intent.",
+    "Unsupported claims are flagged as unverified, not automatically proven false.",
+    "Summary and mitigation statements are not individually checked."
+  ]
+}

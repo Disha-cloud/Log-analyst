@@ -1,0 +1,29 @@
+{
+  "scenario": "S2",
+  "description": "Web requests containing SQL injection and path traversal patterns.",
+  "normal_line_count": 500,
+  "malicious_line_ids": [
+    "L0501",
+    "L0502",
+    "L0503",
+    "L0504"
+  ],
+  "labels": [
+    {
+      "line_id": "L0501",
+      "attack_stage": "sql_injection"
+    },
+    {
+      "line_id": "L0502",
+      "attack_stage": "sql_injection"
+    },
+    {
+      "line_id": "L0503",
+      "attack_stage": "path_traversal"
+    },
+    {
+      "line_id": "L0504",
+      "attack_stage": "path_traversal_success_suspected"
+    }
+  ]
+}

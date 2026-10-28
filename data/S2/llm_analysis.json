@@ -1,0 +1,29 @@
+{
+  "summary": "The findings indicate suspicious web requests that contain SQL injection and path traversal patterns. However, the response status alone does not prove successful exploitation or file access.",
+  "severity": "medium",
+  "attack_chain": [
+    {
+      "stage": "exploitation_attempt",
+      "mitre_id": "T1190",
+      "explanation": "Requests contain SQL injection indicators. These indicate possible exploitation attempts, not proof of successful exploitation.",
+      "evidence_ids": [
+        "access.log:L0501",
+        "access.log:L0502"
+      ]
+    },
+    {
+      "stage": "exploitation_attempt",
+      "mitre_id": "T1190",
+      "explanation": "Requests contain path traversal indicators. The available evidence does not establish that unauthorized files were accessed.",
+      "evidence_ids": [
+        "access.log:L0503",
+        "access.log:L0504"
+      ]
+    }
+  ],
+  "mitigations": [
+    "Implement input validation and sanitization for all user-provided data to prevent SQL injection and path traversal attacks.",
+    "Monitor and log all web requests for patterns that could indicate malicious intent.",
+    "Regularly update and patch web applications to address known vulnerabilities."
+  ]
+}

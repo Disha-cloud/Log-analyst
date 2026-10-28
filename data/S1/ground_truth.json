@@ -1,0 +1,49 @@
+{
+  "scenario": "S1",
+  "description": "SSH brute force followed by successful login and sudo activity.",
+  "normal_line_count": 500,
+  "malicious_line_ids": [
+    "L0501",
+    "L0502",
+    "L0503",
+    "L0504",
+    "L0505",
+    "L0506",
+    "L0507",
+    "L0508"
+  ],
+  "labels": [
+    {
+      "line_id": "L0501",
+      "attack_stage": "ssh_brute_force"
+    },
+    {
+      "line_id": "L0502",
+      "attack_stage": "ssh_brute_force"
+    },
+    {
+      "line_id": "L0503",
+      "attack_stage": "ssh_brute_force"
+    },
+    {
+      "line_id": "L0504",
+      "attack_stage": "ssh_brute_force"
+    },
+    {
+      "line_id": "L0505",
+      "attack_stage": "ssh_brute_force"
+    },
+    {
+      "line_id": "L0506",
+      "attack_stage": "ssh_brute_force"
+    },
+    {
+      "line_id": "L0507",
+      "attack_stage": "successful_login_after_brute_force"
+    },
+    {
+      "line_id": "L0508",
+      "attack_stage": "privilege_escalation"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "scenario": "S3",
+  "total_claims": 3,
+  "verified_claims": 3,
+  "unverified_claims": 0,
+  "claims": [
+    {
+      "claim_number": 1,
+      "stage": "successful_authentication",
+      "explanation": "A successful login occurred before 05:00. This is an unusual-hour indicator, but does not by itself establish account misuse.",
+      "evidence_ids": [
+        "auth.log:L0501"
+      ],
+      "status": "verified",
+      "claim_type": "successful_authentication",
+      "reason": "All cited lines support the claimed event.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0501",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        }
+      ]
+    },
+    {
+      "claim_number": 2,
+      "stage": "large_data_transfer",
+      "explanation": "A large HTTP response was observed. Its size alone does not establish unauthorized access or exfiltration.",
+      "evidence_ids": [
+        "access.log:L0502"
+      ],
+      "status": "verified",
+      "claim_type": "large_data_transfer",
+      "reason": "All cited lines support the claimed event.",
+      "evidence_checks": [
+        {
+          "evidence_id": "access.log:L0502",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        }
+      ]
+    },
+    {
+      "claim_number": 3,
+      "stage": "correlated_events",
+      "explanation": "An unusual-hour login and a large HTTP response occurred within the detector's correlation window. Their relationship and intent require investigation.",
+      "evidence_ids": [
+        "auth.log:L0501",
+        "access.log:L0502"
+      ],
+      "status": "verified",
+      "claim_type": "correlated_events",
+      "reason": "Both authentication and large-transfer indicators were found.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0501",
+          "status": "review_required",
+          "reason": "Correlation requires multiple supporting events."
+        },
+        {
+          "evidence_id": "access.log:L0502",
+          "status": "review_required",
+          "reason": "Correlation requires multiple supporting events."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Pattern matches are heuristic evidence checks, not proof of intent.",
+    "Unsupported claims are flagged as unverified, not automatically proven false.",
+    "Summary and mitigation statements are not individually checked."
+  ]
+}

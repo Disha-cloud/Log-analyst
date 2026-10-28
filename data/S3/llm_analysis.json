@@ -1,0 +1,36 @@
+{
+  "summary": "The findings indicate an unusual-hour login and a large HTTP response from the same IP address within 24 hours. The large response alone does not prove data exfiltration, and the timing of the events does not establish malicious activity. The login and the large response should be investigated further to determine if they are related and if the events indicate malicious activity.",
+  "severity": "medium",
+  "attack_chain": [
+    {
+      "stage": "successful_authentication",
+      "mitre_id": "",
+      "explanation": "A successful login occurred before 05:00. This is an unusual-hour indicator, but does not by itself establish account misuse.",
+      "evidence_ids": [
+        "auth.log:L0501"
+      ]
+    },
+    {
+      "stage": "large_data_transfer",
+      "mitre_id": "",
+      "explanation": "A large HTTP response was observed. Its size alone does not establish unauthorized access or exfiltration.",
+      "evidence_ids": [
+        "access.log:L0502"
+      ]
+    },
+    {
+      "stage": "correlated_events",
+      "mitre_id": "",
+      "explanation": "An unusual-hour login and a large HTTP response occurred within the detector's correlation window. Their relationship and intent require investigation.",
+      "evidence_ids": [
+        "auth.log:L0501",
+        "access.log:L0502"
+      ]
+    }
+  ],
+  "mitigations": [
+    "Implement monitoring for unusual login times and large HTTP responses.",
+    "Review access logs for any suspicious activity or unauthorized access.",
+    "Consider implementing rate limiting for login attempts and large file downloads."
+  ]
+}

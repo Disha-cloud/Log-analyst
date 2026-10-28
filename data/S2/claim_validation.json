@@ -1,0 +1,61 @@
+{
+  "scenario": "S2",
+  "total_claims": 2,
+  "verified_claims": 2,
+  "unverified_claims": 0,
+  "claims": [
+    {
+      "claim_number": 1,
+      "stage": "exploitation_attempt",
+      "explanation": "Requests contain SQL injection indicators. These indicate possible exploitation attempts, not proof of successful exploitation.",
+      "evidence_ids": [
+        "access.log:L0501",
+        "access.log:L0502"
+      ],
+      "status": "verified",
+      "claim_type": "exploitation_attempt",
+      "reason": "All cited lines support the claimed event.",
+      "evidence_checks": [
+        {
+          "evidence_id": "access.log:L0501",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "access.log:L0502",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        }
+      ]
+    },
+    {
+      "claim_number": 2,
+      "stage": "exploitation_attempt",
+      "explanation": "Requests contain path traversal indicators. The available evidence does not establish that unauthorized files were accessed.",
+      "evidence_ids": [
+        "access.log:L0503",
+        "access.log:L0504"
+      ],
+      "status": "verified",
+      "claim_type": "exploitation_attempt",
+      "reason": "All cited lines support the claimed event.",
+      "evidence_checks": [
+        {
+          "evidence_id": "access.log:L0503",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        },
+        {
+          "evidence_id": "access.log:L0504",
+          "status": "pass",
+          "reason": "The line contains a matching event indicator."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Pattern matches are heuristic evidence checks, not proof of intent.",
+    "Unsupported claims are flagged as unverified, not automatically proven false.",
+    "Summary and mitigation statements are not individually checked."
+  ]
+}
