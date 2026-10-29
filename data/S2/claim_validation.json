@@ -12,8 +12,8 @@
     {
       "claim_number": 1,
       "stage": "exploitation_attempt",
-      "mitre_id": "T1048.001",
-      "explanation": "The access.log entries show SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application's SQL queries and file paths.",
+      "mitre_id": "T1110",
+      "explanation": "The access.log entries show SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application.",
       "evidence_ids": [
         "access.log:L5088",
         "access.log:L5090",
@@ -47,11 +47,11 @@
       ],
       "mitre_check": {
         "status": "mismatch",
-        "given": "T1048.001",
+        "given": "T1110",
         "expected": [
           "T1190"
         ],
-        "reason": "T1048.001 does not fit exploitation_attempt. Expected one of T1190."
+        "reason": "T1110 does not fit exploitation_attempt. Expected one of T1190."
       }
     }
   ],

@@ -61,7 +61,7 @@ Rules:
   large_data_transfer = unusually large successful HTTP response
   correlated_events = suspicious login linked to a large transfer from the same IP
 - Each finding includes suggested_stage. Use it unless clearly wrong.
-- mitre_id: the MITRE ATT&CK technique ID that best matches THIS item's stage and evidence, or "unknown". Different stages usually need different techniques; do not reuse one ID for every item.
+- mitre_id: closest MITRE ATT&CK technique ID (for example T1110), or "unknown".
 - Some findings show only a sample of their evidence; total_evidence_lines gives the full count.
 - An indicator is not proof of success. Correlation is not proof of exfiltration. Sudo use is not automatically privilege escalation.
 - Order attack_chain by time. Give 2 to 5 concrete mitigations.
@@ -77,10 +77,12 @@ def ollama_available():
 
 
 def findings_for_llm(findings):
-    """Highest severity first, capped, with evidence sampled (first and last lines)."""
-    ranked = sorted(findings, key=lambda f: SEVERITY_RANK.get(f["severity"], 9))[:MAX_FINDINGS_FOR_LLM]
+    """Keep at most MAX findings (highest severity wins) but in original order; sample evidence."""
+    by_severity = sorted(range(len(findings)), key=lambda i: SEVERITY_RANK.get(findings[i]["severity"], 9))
+    keep = sorted(by_severity[:MAX_FINDINGS_FOR_LLM])
     trimmed = []
-    for f in ranked:
+    for i in keep:
+        f = findings[i]
         ids = f["evidence_ids"]
         if len(ids) > MAX_EVIDENCE_PER_FINDING:
             half = MAX_EVIDENCE_PER_FINDING // 2

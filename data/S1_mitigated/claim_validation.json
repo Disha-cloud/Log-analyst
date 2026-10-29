@@ -4,16 +4,16 @@
   "verified_claims": 1,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
-  "mitre_match": 0,
-  "mitre_mismatch": 1,
+  "mitre_match": 1,
+  "mitre_mismatch": 0,
   "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "authentication_attempt",
-      "mitre_id": "T1087",
-      "explanation": "The attack chain involves multiple failed login attempts from the same IP address, which is a common indicator of a brute force attack.",
+      "mitre_id": "T1110",
+      "explanation": "The attack chain involves multiple failed SSH login attempts from the same IP address within a short period.",
       "evidence_ids": [
         "auth.log:L0001",
         "auth.log:L0002",
@@ -70,14 +70,14 @@
         }
       ],
       "mitre_check": {
-        "status": "mismatch",
-        "given": "T1087",
+        "status": "match",
+        "given": "T1110",
         "expected": [
           "T1110",
           "T1110.001",
           "T1110.003"
         ],
-        "reason": "T1087 does not fit authentication_attempt. Expected one of T1110, T1110.001, T1110.003."
+        "reason": "T1110 Brute Force fits authentication_attempt."
       }
     }
   ],

@@ -1,19 +1,77 @@
 {
   "scenario": "S3",
-  "total_claims": 2,
-  "verified_claims": 2,
+  "total_claims": 3,
+  "verified_claims": 3,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
-  "mitre_match": 2,
-  "mitre_mismatch": 0,
+  "mitre_match": 1,
+  "mitre_mismatch": 2,
   "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
+      "stage": "successful_authentication",
+      "mitre_id": "T1110",
+      "explanation": "The successful login by carol from 10.0.7.77 is the first step in the attack chain.",
+      "evidence_ids": [
+        "auth.log:L0001"
+      ],
+      "status": "verified",
+      "claim_type": "successful_authentication",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0001",
+          "status": "pass",
+          "reason": "Line shows accepted."
+        }
+      ],
+      "mitre_check": {
+        "status": "match",
+        "given": "T1110",
+        "expected": [
+          "T1021.004",
+          "T1078",
+          "T1110"
+        ],
+        "reason": "T1110 Brute Force fits successful_authentication."
+      }
+    },
+    {
+      "claim_number": 2,
+      "stage": "large_data_transfer",
+      "mitre_id": "T1003",
+      "explanation": "The large HTTP response to /exports/customers_full.csv is the second step in the attack chain.",
+      "evidence_ids": [
+        "access.log:L5001"
+      ],
+      "status": "verified",
+      "claim_type": "large_data_transfer",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "access.log:L5001",
+          "status": "pass",
+          "reason": "Line shows large."
+        }
+      ],
+      "mitre_check": {
+        "status": "mismatch",
+        "given": "T1003",
+        "expected": [
+          "T1041",
+          "T1048",
+          "T1567"
+        ],
+        "reason": "T1003 does not fit large_data_transfer. Expected one of T1041, T1048, T1567."
+      }
+    },
+    {
+      "claim_number": 3,
       "stage": "correlated_events",
-      "mitre_id": "T1041.001",
-      "explanation": "The login by carol at 03:14 is correlated with a large HTTP response to /exports/customers_full.csv.",
+      "mitre_id": "T1003",
+      "explanation": "The login and download were correlated, indicating potential exfiltration.",
       "evidence_ids": [
         "auth.log:L0001",
         "access.log:L5001"
@@ -34,44 +92,15 @@
         }
       ],
       "mitre_check": {
-        "status": "match",
-        "given": "T1041.001",
+        "status": "mismatch",
+        "given": "T1003",
         "expected": [
           "T1041",
           "T1048",
           "T1078",
           "T1567"
         ],
-        "reason": "T1041.001 Exfiltration Over C2 Channel fits correlated_events."
-      }
-    },
-    {
-      "claim_number": 2,
-      "stage": "large_data_transfer",
-      "mitre_id": "T1041.002",
-      "explanation": "The server returned a large HTTP response to the login IP.",
-      "evidence_ids": [
-        "access.log:L5001"
-      ],
-      "status": "verified",
-      "claim_type": "large_data_transfer",
-      "reason": "All cited lines passed.",
-      "evidence_checks": [
-        {
-          "evidence_id": "access.log:L5001",
-          "status": "pass",
-          "reason": "Line shows large."
-        }
-      ],
-      "mitre_check": {
-        "status": "match",
-        "given": "T1041.002",
-        "expected": [
-          "T1041",
-          "T1048",
-          "T1567"
-        ],
-        "reason": "T1041.002 Exfiltration Over C2 Channel fits large_data_transfer."
+        "reason": "T1003 does not fit correlated_events. Expected one of T1041, T1048, T1078, T1567."
       }
     }
   ],

@@ -1,0 +1,9 @@
+REAL_SSH | authentication_attempt | T1136 | verified | mismatch
+S1 | authentication_attempt | T1087 | verified | mismatch
+S1 | successful_authentication | T1044.001 | unverified | mismatch
+S1 | correlated_events | T1044.002 | unverified | mismatch
+S1_mitigated | authentication_attempt | T1087 | verified | mismatch
+S2 | exploitation_attempt | T1048.001 | verified | mismatch
+S3 | correlated_events | T1041.001 | verified | match
+S3 | large_data_transfer | T1041.002 | verified | match
+S5 | large_data_transfer | T1003 | verified | mismatch

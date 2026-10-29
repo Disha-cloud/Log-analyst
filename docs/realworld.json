@@ -12,6 +12,6 @@
     "distinct_ips_flagged": 9,
     "claims_total": 1,
     "claims_verified": 1,
-    "mitre_match": 0
+    "mitre_match": 1
   }
 ]

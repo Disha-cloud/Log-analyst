@@ -12,8 +12,8 @@
     {
       "claim_number": 1,
       "stage": "large_data_transfer",
-      "mitre_id": "T1003",
-      "explanation": "Server returned 31,457,280 bytes to 10.0.1.50 for /backups/nightly-2026-10-28.tar.gz.",
+      "mitre_id": "T1110",
+      "explanation": "Server returned a large HTTP response (31,457,280 bytes) to 10.0.1.50 for a backup file transfer.",
       "evidence_ids": [
         "access.log:L5144"
       ],
@@ -29,13 +29,13 @@
       ],
       "mitre_check": {
         "status": "mismatch",
-        "given": "T1003",
+        "given": "T1110",
         "expected": [
           "T1041",
           "T1048",
           "T1567"
         ],
-        "reason": "T1003 does not fit large_data_transfer. Expected one of T1041, T1048, T1567."
+        "reason": "T1110 does not fit large_data_transfer. Expected one of T1041, T1048, T1567."
       }
     }
   ],

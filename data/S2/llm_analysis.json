@@ -2,7 +2,7 @@
   "scenario": "S2",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:13:33",
+  "generated_at": "2026-10-29T12:29:30",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -55,8 +55,8 @@
   "attack_chain": [
     {
       "stage": "exploitation_attempt",
-      "mitre_id": "T1048.001",
-      "explanation": "The access.log entries show SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application's SQL queries and file paths.",
+      "mitre_id": "T1110",
+      "explanation": "The access.log entries show SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application.",
       "evidence_ids": [
         "access.log:L5088",
         "access.log:L5090",
@@ -69,8 +69,8 @@
     "Implement input validation and sanitization for all user-provided data to prevent SQL injection and path traversal attacks.",
     "Use Content Security Policy (CSP) to restrict the sources of scripts, styles, and other resources.",
     "Regularly update and patch the application to address known vulnerabilities.",
-    "Enable and configure web application firewalls (WAF) to block known attack patterns.",
-    "Educate developers and security teams on secure coding practices and the importance of input validation and sanitization."
+    "Enable web application firewalls (WAF) to detect and block suspicious activities.",
+    "Educate developers and security teams on secure coding practices and the importance of secure coding reviews."
   ],
   "llm_called": true,
   "llm_attempts": 1,

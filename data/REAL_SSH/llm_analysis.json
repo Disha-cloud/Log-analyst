@@ -2,7 +2,7 @@
   "scenario": "REAL_SSH",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:09:32",
+  "generated_at": "2026-10-29T12:27:06",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -223,13 +223,13 @@
       ]
     }
   ],
-  "summary": "Multiple failed SSH login attempts from various IP addresses, with a high frequency of failed logins within a short period. The most active IP addresses are 10.200.0.7, 10.200.0.8, 10.200.0.16, 10.200.0.20, and 10.200.0.21, with 23, 6, 5, 5, and 32 failed logins respectively. The most active IP addresses are from 10.200.0.31 with 16 failed logins. The most active user is 'admin' from 10.200.0.22 with 6 failed logins. The most active user is 'root' from 10.200.0.31 with 16 failed logins. The most active user is 'invalid user' from 10.200.0.28 with 6 failed logins. The most active user is 'invalid user' from 10.200.0.27 with 5 failed logins.",
+  "summary": "Multiple failed SSH login attempts from various IP addresses, with a high frequency of failed logins within a short period. The most active IP addresses are 10.200.0.7, 10.200.0.8, 10.200.0.16, 10.200.0.20, and 10.200.0.21, with 32 failed logins from 10.200.0.31 being the most severe. The most common pattern is a series of failed login attempts within a minute, indicating a brute force attack.",
   "severity": "high",
   "attack_chain": [
     {
       "stage": "authentication_attempt",
-      "mitre_id": "T1136",
-      "explanation": "The attack chain involves multiple failed SSH login attempts from various IP addresses, indicating an attempt to brute force login credentials.",
+      "mitre_id": "T1110",
+      "explanation": "The attack chain involves multiple failed SSH login attempts, which is a classic brute force attack.",
       "evidence_ids": [
         "auth.log:L0035",
         "auth.log:L0038",
@@ -296,11 +296,11 @@
     }
   ],
   "mitigations": [
-    "Implement strong password policies and enforce regular password changes.",
-    "Configure SSH to use public key authentication and disable password authentication.",
-    "Limit the number of login attempts per IP address and user.",
-    "Enable SSH access control lists (ACLs) to restrict access based on IP addresses and user groups.",
-    "Monitor SSH login attempts and alert on unusual patterns, such as multiple failed attempts within a short period."
+    "Implement rate limiting on SSH login attempts to prevent brute force attacks.",
+    "Use strong authentication methods such as multi-factor authentication (MFA) to enhance security.",
+    "Configure SSH to require strong passwords and enforce password complexity policies.",
+    "Monitor SSH login attempts and set up alerts for unusual patterns or high failure rates.",
+    "Limit the number of login attempts per IP address within a short period to prevent brute force attacks."
   ],
   "llm_called": true,
   "llm_attempts": 1,

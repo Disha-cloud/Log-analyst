@@ -2,7 +2,7 @@
   "scenario": "S1_mitigated",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:13:03",
+  "generated_at": "2026-10-29T12:29:09",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -24,13 +24,13 @@
       ]
     }
   ],
-  "summary": "The scenario involves a brute force attack on the SSH service, indicated by repeated failed login attempts from a single IP address.",
+  "summary": "S1_mitigated",
   "severity": "high",
   "attack_chain": [
     {
       "stage": "authentication_attempt",
-      "mitre_id": "T1087",
-      "explanation": "The attack chain involves multiple failed login attempts from the same IP address, which is a common indicator of a brute force attack.",
+      "mitre_id": "T1110",
+      "explanation": "The attack chain involves multiple failed SSH login attempts from the same IP address within a short period.",
       "evidence_ids": [
         "auth.log:L0001",
         "auth.log:L0002",
@@ -44,11 +44,11 @@
     }
   ],
   "mitigations": [
-    "Implement rate limiting on SSH login attempts to prevent brute force attacks.",
-    "Enable SSH key authentication to reduce the need for password-based authentication.",
-    "Configure SSH to log failed login attempts and alert on suspicious activity.",
-    "Use a strong password policy and enforce regular password changes.",
-    "Monitor SSH login attempts and alert on unusual patterns or high volumes of failed attempts."
+    "Implement rate limiting for SSH login attempts to prevent brute force attacks.",
+    "Enable SSH key authentication to reduce the need for password-based logins.",
+    "Configure SSH to reject login attempts from known malicious IP addresses.",
+    "Use a firewall to block SSH traffic from unauthorized sources.",
+    "Regularly review SSH access logs for unusual activity and investigate suspicious patterns."
   ],
   "llm_called": true,
   "llm_attempts": 1,

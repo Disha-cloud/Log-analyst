@@ -1,19 +1,19 @@
 {
   "scenario": "S1",
   "total_claims": 3,
-  "verified_claims": 1,
-  "unverified_claims": 2,
-  "verification_rate_percent": 33.33,
-  "mitre_match": 0,
-  "mitre_mismatch": 3,
+  "verified_claims": 3,
+  "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
+  "mitre_match": 2,
+  "mitre_mismatch": 1,
   "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "authentication_attempt",
-      "mitre_id": "T1087",
-      "explanation": "The failed login attempts from 10.0.5.23 to the admin account are indicative of an attack.",
+      "mitre_id": "T1110",
+      "explanation": "The brute force attack was detected by the 'ssh_brute_force' rule.",
       "evidence_ids": [
         "auth.log:L0001",
         "auth.log:L0002",
@@ -58,28 +58,93 @@
         }
       ],
       "mitre_check": {
-        "status": "mismatch",
-        "given": "T1087",
+        "status": "match",
+        "given": "T1110",
         "expected": [
           "T1110",
           "T1110.001",
           "T1110.003"
         ],
-        "reason": "T1087 does not fit authentication_attempt. Expected one of T1110, T1110.001, T1110.003."
+        "reason": "T1110 Brute Force fits authentication_attempt."
       }
     },
     {
       "claim_number": 2,
       "stage": "successful_authentication",
-      "mitre_id": "T1044.001",
-      "explanation": "The successful login for admin followed by sudo activity is a clear indication of an attacker.",
+      "mitre_id": "T1110",
+      "explanation": "The 'failure_then_success' rule identified a successful login after the brute force attack.",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0006",
+        "auth.log:L0007"
+      ],
+      "status": "verified",
+      "claim_type": "successful_authentication",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0001",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0002",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0003",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0004",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0005",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0006",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0007",
+          "status": "pass",
+          "reason": "Line shows accepted."
+        }
+      ],
+      "mitre_check": {
+        "status": "match",
+        "given": "T1110",
+        "expected": [
+          "T1021.004",
+          "T1078",
+          "T1110"
+        ],
+        "reason": "T1110 Brute Force fits successful_authentication."
+      }
+    },
+    {
+      "claim_number": 3,
+      "stage": "privileged_activity",
+      "mitre_id": "T1110",
+      "explanation": "The 'login_then_sudo' rule detected sudo activity after the successful login.",
       "evidence_ids": [
         "auth.log:L0007",
         "auth.log:L0008"
       ],
-      "status": "unverified",
-      "claim_type": "successful_authentication",
-      "reason": "One or more checks failed.",
+      "status": "verified",
+      "claim_type": "privileged_activity",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
           "evidence_id": "auth.log:L0007",
@@ -88,54 +153,18 @@
         },
         {
           "evidence_id": "auth.log:L0008",
-          "status": "fail",
-          "reason": "Line does not support a successful_authentication claim."
-        }
-      ],
-      "mitre_check": {
-        "status": "mismatch",
-        "given": "T1044.001",
-        "expected": [
-          "T1021.004",
-          "T1078",
-          "T1110"
-        ],
-        "reason": "T1044.001 does not fit successful_authentication. Expected one of T1021.004, T1078, T1110."
-      }
-    },
-    {
-      "claim_number": 3,
-      "stage": "correlated_events",
-      "mitre_id": "T1044.002",
-      "explanation": "The unusual login timing (02:14) is correlated with the successful login and sudo activity.",
-      "evidence_ids": [
-        "auth.log:L0007"
-      ],
-      "status": "unverified",
-      "claim_type": "correlated_events",
-      "reason": "One or more checks failed.",
-      "evidence_checks": [
-        {
-          "evidence_id": "auth.log:L0007",
           "status": "pass",
-          "reason": "Line shows accepted."
-        },
-        {
-          "evidence_id": "(required)",
-          "status": "fail",
-          "reason": "Claim needs at least one line showing: large."
+          "reason": "Line shows sudo."
         }
       ],
       "mitre_check": {
         "status": "mismatch",
-        "given": "T1044.002",
+        "given": "T1110",
         "expected": [
-          "T1041",
-          "T1048",
-          "T1078",
-          "T1567"
+          "T1003.008",
+          "T1548.003"
         ],
-        "reason": "T1044.002 does not fit correlated_events. Expected one of T1041, T1048, T1078, T1567."
+        "reason": "T1110 does not fit privileged_activity. Expected one of T1003.008, T1548.003."
       }
     }
   ],
