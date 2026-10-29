@@ -3,6 +3,8 @@
   "total_claims": 2,
   "verified_claims": 2,
   "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
+  "unverified_rate_percent": 0.0,
   "claims": [
     {
       "claim_number": 1,
@@ -54,8 +56,9 @@
     }
   ],
   "limitations": [
-    "Pattern matches are heuristic evidence checks, not proof of intent.",
-    "Unsupported claims are flagged as unverified, not automatically proven false.",
-    "Summary and mitigation statements are not individually checked."
+    "Pattern matching is heuristic and does not prove intent.",
+    "Unverified claims are not automatically confirmed hallucinations.",
+    "Summary and mitigation statements are not individually checked.",
+    "A matching log indicator does not prove an attack succeeded."
   ]
 }

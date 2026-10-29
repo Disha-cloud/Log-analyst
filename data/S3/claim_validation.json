@@ -3,6 +3,8 @@
   "total_claims": 3,
   "verified_claims": 3,
   "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
+  "unverified_rate_percent": 0.0,
   "claims": [
     {
       "claim_number": 1,
@@ -50,24 +52,25 @@
       ],
       "status": "verified",
       "claim_type": "correlated_events",
-      "reason": "Both authentication and large-transfer indicators were found.",
+      "reason": "Existing cited lines contain both authentication and large-transfer indicators.",
       "evidence_checks": [
         {
           "evidence_id": "auth.log:L0501",
           "status": "review_required",
-          "reason": "Correlation requires multiple supporting events."
+          "reason": "This claim requires multiple supporting events."
         },
         {
           "evidence_id": "access.log:L0502",
           "status": "review_required",
-          "reason": "Correlation requires multiple supporting events."
+          "reason": "This claim requires multiple supporting events."
         }
       ]
     }
   ],
   "limitations": [
-    "Pattern matches are heuristic evidence checks, not proof of intent.",
-    "Unsupported claims are flagged as unverified, not automatically proven false.",
-    "Summary and mitigation statements are not individually checked."
+    "Pattern matching is heuristic and does not prove intent.",
+    "Unverified claims are not automatically confirmed hallucinations.",
+    "Summary and mitigation statements are not individually checked.",
+    "A matching log indicator does not prove an attack succeeded."
   ]
 }
