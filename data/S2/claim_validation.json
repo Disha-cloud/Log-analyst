@@ -23,28 +23,29 @@
         {
           "evidence_id": "access.log:L5088",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows web_attack."
         },
         {
           "evidence_id": "access.log:L5090",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows web_attack."
         },
         {
           "evidence_id": "access.log:L5091",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows web_attack."
         },
         {
           "evidence_id": "access.log:L5092",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows web_attack."
         }
       ]
     }
   ],
   "limitations": [
     "Checks use heuristic text patterns, not semantic proof.",
+    "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
     "A matching indicator does not prove an attack succeeded."

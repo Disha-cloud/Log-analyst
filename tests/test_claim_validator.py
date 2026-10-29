@@ -64,6 +64,17 @@ class ClaimValidatorTests(unittest.TestCase):
     def test_sql_injection_verified(self):
         self.assertEqual(self.status(claim("exploitation_attempt", ["access.log:L5002"])), "verified")
 
+    def test_success_claim_with_failures_and_success_verified(self):
+        self.assertEqual(self.status(claim("successful_authentication",
+                                           ["auth.log:L0001", "auth.log:L0002"])), "verified")
+
+    def test_success_claim_with_only_failures_unverified(self):
+        self.assertEqual(self.status(claim("successful_authentication", ["auth.log:L0001"])), "unverified")
+
+    def test_privileged_claim_with_login_and_sudo_verified(self):
+        self.assertEqual(self.status(claim("privileged_activity",
+                                           ["auth.log:L0002", "auth.log:L0003"])), "verified")
+
     def test_summary_fake_id_flagged(self):
         results = check_summary("Attack seen at auth.log:L0001 and L9999.", LOGS)
         self.assertEqual([r["status"] for r in results], ["pass", "fail"])

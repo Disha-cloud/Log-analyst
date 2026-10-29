@@ -1,9 +1,9 @@
 {
   "scenario": "S1",
   "total_claims": 3,
-  "verified_claims": 2,
-  "unverified_claims": 1,
-  "verification_rate_percent": 66.67,
+  "verified_claims": 3,
+  "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
   "summary_checks": [],
   "claims": [
     {
@@ -25,32 +25,32 @@
         {
           "evidence_id": "auth.log:L0001",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0002",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0003",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0004",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0005",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0006",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         }
       ]
     },
@@ -68,7 +68,7 @@
         {
           "evidence_id": "auth.log:L0007",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows accepted."
         }
       ]
     },
@@ -80,25 +80,26 @@
         "auth.log:L0007",
         "auth.log:L0008"
       ],
-      "status": "unverified",
+      "status": "verified",
       "claim_type": "privileged_activity",
-      "reason": "One or more cited lines failed verification.",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
           "evidence_id": "auth.log:L0007",
-          "status": "fail",
-          "reason": "Line does not contain the expected event indicator."
+          "status": "pass",
+          "reason": "Line shows accepted."
         },
         {
           "evidence_id": "auth.log:L0008",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows sudo."
         }
       ]
     }
   ],
   "limitations": [
     "Checks use heuristic text patterns, not semantic proof.",
+    "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
     "A matching indicator does not prove an attack succeeded."

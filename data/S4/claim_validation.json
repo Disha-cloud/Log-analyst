@@ -8,6 +8,7 @@
   "claims": [],
   "limitations": [
     "Checks use heuristic text patterns, not semantic proof.",
+    "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
     "A matching indicator does not prove an attack succeeded."

@@ -27,48 +27,49 @@
         {
           "evidence_id": "auth.log:L0001",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0002",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0003",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0004",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0005",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0007",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0008",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         },
         {
           "evidence_id": "auth.log:L0009",
           "status": "pass",
-          "reason": "Line contains the expected event indicator."
+          "reason": "Line shows failed."
         }
       ]
     }
   ],
   "limitations": [
     "Checks use heuristic text patterns, not semantic proof.",
+    "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
     "A matching indicator does not prove an attack succeeded."

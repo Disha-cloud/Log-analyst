@@ -13,12 +13,26 @@ DATA_DIR = PROJECT_ROOT / "data"
 
 STAGES = ["authentication_attempt", "successful_authentication", "privileged_activity",
           "exploitation_attempt", "large_data_transfer", "correlated_events"]
+
 PATTERNS = {
     "authentication_attempt": re.compile(r"Failed password|authentication failure", re.I),
     "successful_authentication": re.compile(r"Accepted (?:password|publickey)", re.I),
     "privileged_activity": re.compile(r"\bsudo:.*COMMAND=", re.I),
 }
-FALLBACK_KEYWORDS = [  # used only when stage is not an exact known stage; order matters
+
+# stage: (required kinds: each must appear at least once across cited lines,
+#         allowed kinds: every cited line must show at least one of these)
+STAGE_EVIDENCE = {
+    "authentication_attempt": ({"failed"}, {"failed"}),
+    "successful_authentication": ({"accepted"}, {"accepted", "failed"}),
+    "privileged_activity": ({"sudo"}, {"sudo", "accepted"}),
+    "exploitation_attempt": ({"web_attack"}, {"web_attack"}),
+    "large_data_transfer": ({"large"}, {"large"}),
+    "correlated_events": ({"accepted", "large"}, {"accepted", "large"}),
+}
+
+# Used only when stage is not an exact known stage. Order matters.
+FALLBACK_KEYWORDS = [
     ("correlated_events", ("correlat", "exfiltration")),
     ("exploitation_attempt", ("sql", "injection", "traversal", "exploit")),
     ("privileged_activity", ("sudo", "privilege")),
@@ -26,6 +40,7 @@ FALLBACK_KEYWORDS = [  # used only when stage is not an exact known stage; order
     ("authentication_attempt", ("brute", "failed login", "failed password")),
     ("successful_authentication", ("successful login", "login success", "accepted")),
 ]
+
 ID_RE = re.compile(r"^(?:(auth\.log|access\.log)\s*:\s*)?L0*(\d+)$", re.I)
 SUMMARY_ID_RE = re.compile(r"\b(?:(?:auth|access)\.log:)?L\d{3,5}\b")
 LARGE_RE = re.compile(r'"\s+(\d{3})\s+(\d+|-)')
@@ -72,16 +87,19 @@ def is_large_response(raw):
     return status == "200" and size != "-" and int(size) >= LARGE_TRANSFER_BYTES
 
 
-def line_supports(claim_type, raw):
-    decoded = unquote(raw)
-    if claim_type == "exploitation_attempt":
-        return bool(SQLI_RE.search(decoded) or TRAVERSAL_RE.search(decoded))
-    if claim_type == "large_data_transfer":
-        return is_large_response(raw)
-    if claim_type == "correlated_events":
-        return bool(PATTERNS["successful_authentication"].search(raw)) or is_large_response(raw)
-    pattern = PATTERNS.get(claim_type)
-    return bool(pattern and pattern.search(raw))
+def line_kinds(raw):
+    kinds, decoded = set(), unquote(raw)
+    if PATTERNS["authentication_attempt"].search(raw):
+        kinds.add("failed")
+    if PATTERNS["successful_authentication"].search(raw):
+        kinds.add("accepted")
+    if PATTERNS["privileged_activity"].search(raw):
+        kinds.add("sudo")
+    if SQLI_RE.search(decoded) or TRAVERSAL_RE.search(decoded):
+        kinds.add("web_attack")
+    if is_large_response(raw):
+        kinds.add("large")
+    return kinds
 
 
 def verify_claim(claim, log_lines):
@@ -93,31 +111,29 @@ def verify_claim(claim, log_lines):
     if not evidence_ids:
         return {"status": "unverified", "claim_type": claim_type,
                 "reason": "No evidence IDs supplied.", "evidence_checks": []}
-    checks, resolved_lines = [], []
+    required, allowed = STAGE_EVIDENCE[claim_type]
+    checks, seen_kinds = [], set()
     for raw_id in evidence_ids:
         eid, problem = normalize_evidence_id(raw_id, log_lines)
         if eid is None:
             checks.append({"evidence_id": raw_id, "status": "fail", "reason": problem})
             continue
-        raw = log_lines[eid]
-        resolved_lines.append(raw)
+        kinds = line_kinds(log_lines[eid])
+        seen_kinds |= kinds
         note = "" if eid == str(raw_id).strip() else f" (normalized from {raw_id})"
-        if line_supports(claim_type, raw):
+        if kinds & allowed:
             checks.append({"evidence_id": eid, "status": "pass",
-                           "reason": "Line contains the expected event indicator." + note})
+                           "reason": f"Line shows {', '.join(sorted(kinds & allowed))}." + note})
         else:
             checks.append({"evidence_id": eid, "status": "fail",
-                           "reason": "Line does not contain the expected event indicator." + note})
-    if claim_type == "correlated_events":
-        has_login = any(PATTERNS["successful_authentication"].search(x) for x in resolved_lines)
-        has_transfer = any(is_large_response(x) for x in resolved_lines)
-        if not (has_login and has_transfer):
-            checks.append({"evidence_id": "(correlation)", "status": "fail",
-                           "reason": "Correlation needs both a successful login and a large HTTP 200 response."})
+                           "reason": f"Line does not support a {claim_type} claim." + note})
+    missing = required - seen_kinds
+    if missing:
+        checks.append({"evidence_id": "(required)", "status": "fail",
+                       "reason": f"Claim needs at least one line showing: {', '.join(sorted(missing))}."})
     verified = all(c["status"] == "pass" for c in checks)
     return {"status": "verified" if verified else "unverified", "claim_type": claim_type,
-            "reason": "All cited lines passed." if verified
-            else "One or more cited lines failed verification.",
+            "reason": "All cited lines passed." if verified else "One or more checks failed.",
             "evidence_checks": checks}
 
 
@@ -153,6 +169,7 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
         "claims": claims,
         "limitations": [
             "Checks use heuristic text patterns, not semantic proof.",
+            "Verified means the cited lines support the claim, not that the activity is malicious.",
             "Unverified means unsupported by the cited lines, not automatically false.",
             "Summary is checked only for cited IDs, not for every statement.",
             "A matching indicator does not prove an attack succeeded.",
