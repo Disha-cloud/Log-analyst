@@ -16,5 +16,6 @@
   "rules_missed": [],
   "rules_unexpected": [],
   "claims_total": 0,
-  "claims_verified": 0
+  "claims_verified": 0,
+  "mitre_match": 0
 }

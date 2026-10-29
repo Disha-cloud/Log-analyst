@@ -27,7 +27,8 @@
     "rules_missed": [],
     "rules_unexpected": [],
     "claims_total": 3,
-    "claims_verified": 3
+    "claims_verified": 1,
+    "mitre_match": 0
   },
   {
     "scenario": "S1_mitigated",
@@ -51,7 +52,8 @@
     "rules_missed": [],
     "rules_unexpected": [],
     "claims_total": 1,
-    "claims_verified": 1
+    "claims_verified": 1,
+    "mitre_match": 0
   },
   {
     "scenario": "S2",
@@ -77,7 +79,8 @@
     "rules_missed": [],
     "rules_unexpected": [],
     "claims_total": 1,
-    "claims_verified": 1
+    "claims_verified": 1,
+    "mitre_match": 0
   },
   {
     "scenario": "S3",
@@ -104,8 +107,9 @@
     ],
     "rules_missed": [],
     "rules_unexpected": [],
-    "claims_total": 3,
-    "claims_verified": 3
+    "claims_total": 2,
+    "claims_verified": 2,
+    "mitre_match": 2
   },
   {
     "scenario": "S4",
@@ -125,7 +129,8 @@
     "rules_missed": [],
     "rules_unexpected": [],
     "claims_total": 0,
-    "claims_verified": 0
+    "claims_verified": 0,
+    "mitre_match": 0
   },
   {
     "scenario": "S5",
@@ -149,6 +154,7 @@
       "large_data_transfer"
     ],
     "claims_total": 1,
-    "claims_verified": 1
+    "claims_verified": 1,
+    "mitre_match": 0
   }
 ]

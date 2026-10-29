@@ -2,7 +2,7 @@
   "scenario": "S5",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T10:51:38",
+  "generated_at": "2026-10-29T12:14:36",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -17,12 +17,12 @@
       ]
     }
   ],
-  "summary": "Large HTTP response detected, likely a backup transfer. No immediate threat detected.",
+  "summary": "A large HTTP 200 response was observed, which may indicate data exfiltration.",
   "severity": "low",
   "attack_chain": [
     {
       "stage": "large_data_transfer",
-      "mitre_id": "T1110",
+      "mitre_id": "T1003",
       "explanation": "Server returned 31,457,280 bytes to 10.0.1.50 for /backups/nightly-2026-10-28.tar.gz.",
       "evidence_ids": [
         "access.log:L5144"
@@ -30,12 +30,13 @@
     }
   ],
   "mitigations": [
-    "Implement rate limiting for large file downloads.",
-    "Monitor for unusual patterns in backup file names and sizes.",
-    "Restrict access to backup files to authorized users only.",
-    "Enable SSL/TLS encryption for backup transfers.",
-    "Regularly review and update backup policies."
+    "Implement rate limiting for outbound HTTP requests.",
+    "Monitor for unusual outbound traffic patterns, especially to external IPs.",
+    "Enable server-side request forgery (SSRF) protection to restrict requests to internal resources.",
+    "Review and update firewall rules to restrict access to sensitive resources.",
+    "Regularly review and update server configurations to ensure they are secure against known vulnerabilities."
   ],
   "llm_called": true,
-  "llm_attempts": 1
+  "llm_attempts": 1,
+  "findings_sent_to_llm": 1
 }

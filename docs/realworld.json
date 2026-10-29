@@ -1,0 +1,17 @@
+[
+  {
+    "scenario": "REAL_SSH",
+    "source": "Loghub OpenSSH_2k sample. J. Zhu, S. He, P. He, J. Liu, M. R. Lyu, 'Loghub: A Large Collection of System Log Datasets for AI-driven Log Analytics', ISSRE 2023. https://github.com/logpai/loghub",
+    "lines": 2000,
+    "parse_errors": 0,
+    "masked_ips": 30,
+    "findings": 9,
+    "rules_fired": {
+      "ssh_brute_force": 9
+    },
+    "distinct_ips_flagged": 9,
+    "claims_total": 1,
+    "claims_verified": 1,
+    "mitre_match": 0
+  }
+]

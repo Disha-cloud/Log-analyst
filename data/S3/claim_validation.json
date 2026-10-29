@@ -1,51 +1,19 @@
 {
   "scenario": "S3",
-  "total_claims": 3,
-  "verified_claims": 3,
+  "total_claims": 2,
+  "verified_claims": 2,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
+  "mitre_match": 2,
+  "mitre_mismatch": 0,
+  "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
-      "stage": "successful_authentication",
-      "explanation": "The unusual login at 03:14 is flagged as a failed login attempt, but the rule suggests it as a successful authentication.",
-      "evidence_ids": [
-        "auth.log:L0001"
-      ],
-      "status": "verified",
-      "claim_type": "successful_authentication",
-      "reason": "All cited lines passed.",
-      "evidence_checks": [
-        {
-          "evidence_id": "auth.log:L0001",
-          "status": "pass",
-          "reason": "Line shows accepted."
-        }
-      ]
-    },
-    {
-      "claim_number": 2,
-      "stage": "large_data_transfer",
-      "explanation": "The large HTTP response at 03:20 is flagged as a large data transfer.",
-      "evidence_ids": [
-        "access.log:L5001"
-      ],
-      "status": "verified",
-      "claim_type": "large_data_transfer",
-      "reason": "All cited lines passed.",
-      "evidence_checks": [
-        {
-          "evidence_id": "access.log:L5001",
-          "status": "pass",
-          "reason": "Line shows large."
-        }
-      ]
-    },
-    {
-      "claim_number": 3,
       "stage": "correlated_events",
-      "explanation": "The unusual login at 03:14 is correlated with the large response at 03:20.",
+      "mitre_id": "T1041.001",
+      "explanation": "The login by carol at 03:14 is correlated with a large HTTP response to /exports/customers_full.csv.",
       "evidence_ids": [
         "auth.log:L0001",
         "access.log:L5001"
@@ -64,7 +32,47 @@
           "status": "pass",
           "reason": "Line shows large."
         }
-      ]
+      ],
+      "mitre_check": {
+        "status": "match",
+        "given": "T1041.001",
+        "expected": [
+          "T1041",
+          "T1048",
+          "T1078",
+          "T1567"
+        ],
+        "reason": "T1041.001 Exfiltration Over C2 Channel fits correlated_events."
+      }
+    },
+    {
+      "claim_number": 2,
+      "stage": "large_data_transfer",
+      "mitre_id": "T1041.002",
+      "explanation": "The server returned a large HTTP response to the login IP.",
+      "evidence_ids": [
+        "access.log:L5001"
+      ],
+      "status": "verified",
+      "claim_type": "large_data_transfer",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "access.log:L5001",
+          "status": "pass",
+          "reason": "Line shows large."
+        }
+      ],
+      "mitre_check": {
+        "status": "match",
+        "given": "T1041.002",
+        "expected": [
+          "T1041",
+          "T1048",
+          "T1567"
+        ],
+        "reason": "T1041.002 Exfiltration Over C2 Channel fits large_data_transfer."
+      }
     }
   ],
   "limitations": [
@@ -72,6 +80,7 @@
     "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
+    "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
     "A matching indicator does not prove an attack succeeded."
   ]
 }

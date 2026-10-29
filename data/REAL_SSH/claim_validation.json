@@ -1,0 +1,410 @@
+{
+  "scenario": "REAL_SSH",
+  "total_claims": 1,
+  "verified_claims": 1,
+  "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
+  "mitre_match": 0,
+  "mitre_mismatch": 1,
+  "mitre_missing_or_malformed": 0,
+  "summary_checks": [],
+  "claims": [
+    {
+      "claim_number": 1,
+      "stage": "authentication_attempt",
+      "mitre_id": "T1136",
+      "explanation": "The attack chain involves multiple failed SSH login attempts from various IP addresses, indicating an attempt to brute force login credentials.",
+      "evidence_ids": [
+        "auth.log:L0035",
+        "auth.log:L0038",
+        "auth.log:L0041",
+        "auth.log:L0044",
+        "auth.log:L0107",
+        "auth.log:L0110",
+        "auth.log:L0113",
+        "auth.log:L0116",
+        "auth.log:L0125",
+        "auth.log:L0128",
+        "auth.log:L0131",
+        "auth.log:L0134",
+        "auth.log:L0137",
+        "auth.log:L0212",
+        "auth.log:L0214",
+        "auth.log:L0216",
+        "auth.log:L0218",
+        "auth.log:L0236",
+        "auth.log:L0244",
+        "auth.log:L0250",
+        "auth.log:L0252",
+        "auth.log:L0321",
+        "auth.log:L0323",
+        "auth.log:L0325",
+        "auth.log:L0327",
+        "auth.log:L0329",
+        "auth.log:L0389",
+        "auth.log:L0395",
+        "auth.log:L0398",
+        "auth.log:L0401",
+        "auth.log:L0500",
+        "auth.log:L0506",
+        "auth.log:L0509",
+        "auth.log:L0515",
+        "auth.log:L0549",
+        "auth.log:L0554",
+        "auth.log:L0558",
+        "auth.log:L0562",
+        "auth.log:L0582",
+        "auth.log:L0586",
+        "auth.log:L0590",
+        "auth.log:L0594",
+        "auth.log:L0972",
+        "auth.log:L0975",
+        "auth.log:L0978",
+        "auth.log:L0981",
+        "auth.log:L0984",
+        "auth.log:L0990",
+        "auth.log:L0992",
+        "auth.log:L0994",
+        "auth.log:L0996",
+        "auth.log:L0998",
+        "auth.log:L1000",
+        "auth.log:L1447",
+        "auth.log:L1450",
+        "auth.log:L1453",
+        "auth.log:L1456",
+        "auth.log:L1531",
+        "auth.log:L1534",
+        "auth.log:L1537",
+        "auth.log:L1540"
+      ],
+      "status": "verified",
+      "claim_type": "authentication_attempt",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0035",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0038",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0041",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0044",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0107",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0110",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0113",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0116",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0125",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0128",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0131",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0134",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0137",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0212",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0214",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0216",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0218",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0236",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0244",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0250",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0252",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0321",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0323",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0325",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0327",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0329",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0389",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0395",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0398",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0401",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0500",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0506",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0509",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0515",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0549",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0554",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0558",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0562",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0582",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0586",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0590",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0594",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0972",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0975",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0978",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0981",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0984",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0990",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0992",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0994",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0996",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0998",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1000",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1447",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1450",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1453",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1456",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1531",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1534",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1537",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L1540",
+          "status": "pass",
+          "reason": "Line shows failed."
+        }
+      ],
+      "mitre_check": {
+        "status": "mismatch",
+        "given": "T1136",
+        "expected": [
+          "T1110",
+          "T1110.001",
+          "T1110.003"
+        ],
+        "reason": "T1136 does not fit authentication_attempt. Expected one of T1110, T1110.001, T1110.003."
+      }
+    }
+  ],
+  "limitations": [
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Verified means the cited lines support the claim, not that the activity is malicious.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
+    "A matching indicator does not prove an attack succeeded."
+  ]
+}

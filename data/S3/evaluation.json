@@ -23,6 +23,7 @@
   ],
   "rules_missed": [],
   "rules_unexpected": [],
-  "claims_total": 3,
-  "claims_verified": 3
+  "claims_total": 2,
+  "claims_verified": 2,
+  "mitre_match": 2
 }

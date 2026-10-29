@@ -1,4 +1,4 @@
-"""Check each LLM attack_chain claim against the raw log lines it cites."""
+"""Check each LLM attack_chain claim against the raw log lines it cites, plus MITRE ATT&CK ID check."""
 import json
 import re
 import sys
@@ -31,6 +31,26 @@ STAGE_EVIDENCE = {
     "correlated_events": ({"accepted", "large"}, {"accepted", "large"}),
 }
 
+# MITRE ATT&CK techniques accepted per stage (team judgment, documented as a limitation).
+MITRE_EXPECTED = {
+    "authentication_attempt": {"T1110", "T1110.001", "T1110.003"},
+    "successful_authentication": {"T1078", "T1110", "T1021.004"},
+    "privileged_activity": {"T1548.003", "T1003.008"},
+    "exploitation_attempt": {"T1190"},
+    "large_data_transfer": {"T1048", "T1041", "T1567"},
+    "correlated_events": {"T1078", "T1048", "T1041", "T1567"},
+}
+MITRE_NAMES = {
+    "T1110": "Brute Force", "T1110.001": "Password Guessing", "T1110.003": "Password Spraying",
+    "T1078": "Valid Accounts", "T1021.004": "Remote Services: SSH",
+    "T1548": "Abuse Elevation Control Mechanism", "T1548.003": "Sudo and Sudo Caching",
+    "T1003": "OS Credential Dumping", "T1003.008": "/etc/passwd and /etc/shadow",
+    "T1190": "Exploit Public-Facing Application",
+    "T1048": "Exfiltration Over Alternative Protocol", "T1041": "Exfiltration Over C2 Channel",
+    "T1567": "Exfiltration Over Web Service",
+}
+MITRE_RE = re.compile(r"^T\d{4}(?:\.\d{3})?$")
+
 # Used only when stage is not an exact known stage. Order matters.
 FALLBACK_KEYWORDS = [
     ("correlated_events", ("correlat", "exfiltration")),
@@ -55,6 +75,29 @@ def identify_claim_type(claim):
         if any(w in text for w in words):
             return claim_type
     return None
+
+
+def check_mitre(claim_type, mitre_id):
+    expected = MITRE_EXPECTED.get(claim_type, set())
+    expected_text = ", ".join(sorted(expected)) or "none"
+    if claim_type is None:
+        return {"status": "not_checked", "given": mitre_id, "expected": [],
+                "reason": "Claim type unknown, MITRE not checked."}
+    value = str(mitre_id or "").strip().upper()
+    if value in ("", "UNKNOWN", "NONE", "N/A", "NULL"):
+        return {"status": "missing", "given": mitre_id, "expected": sorted(expected),
+                "reason": f"No technique ID given. Expected one of {expected_text}."}
+    if not MITRE_RE.match(value):
+        return {"status": "malformed", "given": mitre_id, "expected": sorted(expected),
+                "reason": f"Not a valid ATT&CK technique ID format. Expected one of {expected_text}."}
+    parent = value.split(".")[0]
+    expected_parents = {e.split(".")[0] for e in expected}
+    if value in expected or parent in expected or value in expected_parents:
+        name = MITRE_NAMES.get(value) or MITRE_NAMES.get(parent, "")
+        return {"status": "match", "given": value, "expected": sorted(expected),
+                "reason": f"{value} {name} fits {claim_type}."}
+    return {"status": "mismatch", "given": value, "expected": sorted(expected),
+            "reason": f"{value} does not fit {claim_type}. Expected one of {expected_text}."}
 
 
 def normalize_evidence_id(raw_id, log_lines):
@@ -104,13 +147,14 @@ def line_kinds(raw):
 
 def verify_claim(claim, log_lines):
     claim_type = identify_claim_type(claim)
+    mitre = check_mitre(claim_type, claim.get("mitre_id"))
     evidence_ids = claim.get("evidence_ids") or []
     if claim_type is None:
-        return {"status": "unverified", "claim_type": None,
-                "reason": "Unrecognized claim type.", "evidence_checks": []}
+        return {"status": "unverified", "claim_type": None, "reason": "Unrecognized claim type.",
+                "evidence_checks": [], "mitre_check": mitre}
     if not evidence_ids:
-        return {"status": "unverified", "claim_type": claim_type,
-                "reason": "No evidence IDs supplied.", "evidence_checks": []}
+        return {"status": "unverified", "claim_type": claim_type, "reason": "No evidence IDs supplied.",
+                "evidence_checks": [], "mitre_check": mitre}
     required, allowed = STAGE_EVIDENCE[claim_type]
     checks, seen_kinds = [], set()
     for raw_id in evidence_ids:
@@ -134,7 +178,7 @@ def verify_claim(claim, log_lines):
     verified = all(c["status"] == "pass" for c in checks)
     return {"status": "verified" if verified else "unverified", "claim_type": claim_type,
             "reason": "All cited lines passed." if verified else "One or more checks failed.",
-            "evidence_checks": checks}
+            "evidence_checks": checks, "mitre_check": mitre}
 
 
 def check_summary(summary, log_lines):
@@ -156,15 +200,20 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
     claims = []
     for number, claim in enumerate(analysis.get("attack_chain", []), start=1):
         claims.append({"claim_number": number, "stage": claim.get("stage"),
+                       "mitre_id": claim.get("mitre_id"),
                        "explanation": claim.get("explanation"),
                        "evidence_ids": claim.get("evidence_ids", []),
                        **verify_claim(claim, log_lines)})
     total = len(claims)
     verified = sum(c["status"] == "verified" for c in claims)
+    mitre_statuses = [c["mitre_check"]["status"] for c in claims]
     report = {
         "scenario": scenario_name, "total_claims": total, "verified_claims": verified,
         "unverified_claims": total - verified,
         "verification_rate_percent": round(100 * verified / total, 2) if total else None,
+        "mitre_match": mitre_statuses.count("match"),
+        "mitre_mismatch": mitre_statuses.count("mismatch"),
+        "mitre_missing_or_malformed": mitre_statuses.count("missing") + mitre_statuses.count("malformed"),
         "summary_checks": check_summary(analysis.get("summary", ""), log_lines),
         "claims": claims,
         "limitations": [
@@ -172,6 +221,7 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
             "Verified means the cited lines support the claim, not that the activity is malicious.",
             "Unverified means unsupported by the cited lines, not automatically false.",
             "Summary is checked only for cited IDs, not for every statement.",
+            "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
             "A matching indicator does not prove an attack succeeded.",
         ],
     }
@@ -180,7 +230,7 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
                                                             encoding="utf-8")
     rate = report["verification_rate_percent"]
     print(f"{scenario_name}: {total} claims, {verified} verified, {total - verified} unverified, "
-          f"rate={'N/A' if rate is None else str(rate) + '%'}")
+          f"rate={'N/A' if rate is None else str(rate) + '%'}, MITRE match {report['mitre_match']}/{total}")
     return report
 
 

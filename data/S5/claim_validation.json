@@ -4,11 +4,15 @@
   "verified_claims": 1,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
+  "mitre_match": 0,
+  "mitre_mismatch": 1,
+  "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "large_data_transfer",
+      "mitre_id": "T1003",
       "explanation": "Server returned 31,457,280 bytes to 10.0.1.50 for /backups/nightly-2026-10-28.tar.gz.",
       "evidence_ids": [
         "access.log:L5144"
@@ -22,7 +26,17 @@
           "status": "pass",
           "reason": "Line shows large."
         }
-      ]
+      ],
+      "mitre_check": {
+        "status": "mismatch",
+        "given": "T1003",
+        "expected": [
+          "T1041",
+          "T1048",
+          "T1567"
+        ],
+        "reason": "T1003 does not fit large_data_transfer. Expected one of T1041, T1048, T1567."
+      }
     }
   ],
   "limitations": [
@@ -30,6 +44,7 @@
     "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
+    "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
     "A matching indicator does not prove an attack succeeded."
   ]
 }

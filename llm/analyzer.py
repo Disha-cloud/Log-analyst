@@ -14,6 +14,9 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
 MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
 NUM_CTX = 8192
+MAX_FINDINGS_FOR_LLM = 12
+MAX_EVIDENCE_PER_FINDING = 8
+SEVERITY_RANK = {"critical": 0, "high": 1, "medium": 2, "low": 3}
 
 STAGES = ["authentication_attempt", "successful_authentication", "privileged_activity",
           "exploitation_attempt", "large_data_transfer", "correlated_events"]
@@ -58,7 +61,8 @@ Rules:
   large_data_transfer = unusually large successful HTTP response
   correlated_events = suspicious login linked to a large transfer from the same IP
 - Each finding includes suggested_stage. Use it unless clearly wrong.
-- mitre_id: closest MITRE ATT&CK technique ID (for example T1110), or "unknown".
+- mitre_id: the MITRE ATT&CK technique ID that best matches THIS item's stage and evidence, or "unknown". Different stages usually need different techniques; do not reuse one ID for every item.
+- Some findings show only a sample of their evidence; total_evidence_lines gives the full count.
 - An indicator is not proof of success. Correlation is not proof of exfiltration. Sudo use is not automatically privilege escalation.
 - Order attack_chain by time. Give 2 to 5 concrete mitigations.
 - Return only JSON."""
@@ -72,14 +76,28 @@ def ollama_available():
         return False
 
 
+def findings_for_llm(findings):
+    """Highest severity first, capped, with evidence sampled (first and last lines)."""
+    ranked = sorted(findings, key=lambda f: SEVERITY_RANK.get(f["severity"], 9))[:MAX_FINDINGS_FOR_LLM]
+    trimmed = []
+    for f in ranked:
+        ids = f["evidence_ids"]
+        if len(ids) > MAX_EVIDENCE_PER_FINDING:
+            half = MAX_EVIDENCE_PER_FINDING // 2
+            ids = ids[:half] + ids[-half:]
+        trimmed.append({**f, "evidence_ids": ids, "total_evidence": len(f["evidence_ids"])})
+    return trimmed
+
+
 def select_evidence(records, findings):
     cited = {eid for f in findings for eid in f["evidence_ids"]}
     return {r["evidence_id"]: r["raw"] for r in records if r["evidence_id"] in cited}
 
 
 def build_user_prompt(scenario_name, findings, evidence):
-    compact = [{"rule_id": f["rule_id"], "title": f["title"], "description": f["description"],
+    compact = [{"rule_id": f["rule_id"], "title": f.get("title"), "description": f.get("description"),
                 "severity": f["severity"], "evidence_ids": f["evidence_ids"],
+                "total_evidence_lines": f.get("total_evidence", len(f["evidence_ids"])),
                 "suggested_stage": RULE_TO_STAGE.get(f["rule_id"])} for f in findings]
     lines = "\n".join(f"{eid} | {raw}" for eid, raw in evidence.items())
     return (f"Scenario: {scenario_name}\n\nRule findings:\n{json.dumps(compact, indent=2)}\n\n"
@@ -123,11 +141,13 @@ def analyze_scenario(scenario_name, data_dir=DATA_DIR, seed=42, temperature=0.0,
         result = {"summary": "No suspicious activity was identified by the detection rules.",
                   "severity": "low", "attack_chain": [], "mitigations": [], "llm_called": False}
     else:
-        evidence = select_evidence(records, findings)
+        llm_findings = findings_for_llm(findings)
+        evidence = select_evidence(records, llm_findings)
         try:
-            output, attempts = call_llm(build_user_prompt(scenario_name, findings, evidence),
+            output, attempts = call_llm(build_user_prompt(scenario_name, llm_findings, evidence),
                                         seed=seed, temperature=temperature)
-            result = {**output, "llm_called": True, "llm_attempts": attempts}
+            result = {**output, "llm_called": True, "llm_attempts": attempts,
+                      "findings_sent_to_llm": len(llm_findings)}
         except (RuntimeError, ValueError) as exc:
             result = {"summary": f"LLM analysis failed: {exc}", "severity": "unknown",
                       "attack_chain": [], "mitigations": [], "llm_called": False,

@@ -4,12 +4,16 @@
   "verified_claims": 1,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
+  "mitre_match": 0,
+  "mitre_mismatch": 1,
+  "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "exploitation_attempt",
-      "explanation": "The IP 10.0.6.66 made SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application.",
+      "mitre_id": "T1048.001",
+      "explanation": "The access.log entries show SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application's SQL queries and file paths.",
       "evidence_ids": [
         "access.log:L5088",
         "access.log:L5090",
@@ -40,7 +44,15 @@
           "status": "pass",
           "reason": "Line shows web_attack."
         }
-      ]
+      ],
+      "mitre_check": {
+        "status": "mismatch",
+        "given": "T1048.001",
+        "expected": [
+          "T1190"
+        ],
+        "reason": "T1048.001 does not fit exploitation_attempt. Expected one of T1190."
+      }
     }
   ],
   "limitations": [
@@ -48,6 +60,7 @@
     "Verified means the cited lines support the claim, not that the activity is malicious.",
     "Unverified means unsupported by the cited lines, not automatically false.",
     "Summary is checked only for cited IDs, not for every statement.",
+    "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
     "A matching indicator does not prove an attack succeeded."
   ]
 }
