@@ -4,73 +4,73 @@
   "verified_claims": 3,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
-  "unverified_rate_percent": 0.0,
+  "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "successful_authentication",
-      "explanation": "A successful login occurred before 05:00. This is an unusual-hour indicator, but does not by itself establish account misuse.",
+      "explanation": "The unusual login at 03:14 is flagged as a failed login attempt, but the rule suggests it as a successful authentication.",
       "evidence_ids": [
-        "auth.log:L0501"
+        "auth.log:L0001"
       ],
       "status": "verified",
       "claim_type": "successful_authentication",
-      "reason": "All cited lines support the claimed event.",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
-          "evidence_id": "auth.log:L0501",
+          "evidence_id": "auth.log:L0001",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         }
       ]
     },
     {
       "claim_number": 2,
       "stage": "large_data_transfer",
-      "explanation": "A large HTTP response was observed. Its size alone does not establish unauthorized access or exfiltration.",
+      "explanation": "The large HTTP response at 03:20 is flagged as a large data transfer.",
       "evidence_ids": [
-        "access.log:L0502"
+        "access.log:L5001"
       ],
       "status": "verified",
       "claim_type": "large_data_transfer",
-      "reason": "All cited lines support the claimed event.",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
-          "evidence_id": "access.log:L0502",
+          "evidence_id": "access.log:L5001",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         }
       ]
     },
     {
       "claim_number": 3,
       "stage": "correlated_events",
-      "explanation": "An unusual-hour login and a large HTTP response occurred within the detector's correlation window. Their relationship and intent require investigation.",
+      "explanation": "The unusual login at 03:14 is correlated with the large response at 03:20.",
       "evidence_ids": [
-        "auth.log:L0501",
-        "access.log:L0502"
+        "auth.log:L0001",
+        "access.log:L5001"
       ],
       "status": "verified",
       "claim_type": "correlated_events",
-      "reason": "Existing cited lines contain both authentication and large-transfer indicators.",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
-          "evidence_id": "auth.log:L0501",
-          "status": "review_required",
-          "reason": "This claim requires multiple supporting events."
+          "evidence_id": "auth.log:L0001",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "access.log:L0502",
-          "status": "review_required",
-          "reason": "This claim requires multiple supporting events."
+          "evidence_id": "access.log:L5001",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
         }
       ]
     }
   ],
   "limitations": [
-    "Pattern matching is heuristic and does not prove intent.",
-    "Unverified claims are not automatically confirmed hallucinations.",
-    "Summary and mitigation statements are not individually checked.",
-    "A matching log indicator does not prove an attack succeeded."
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "A matching indicator does not prove an attack succeeded."
   ]
 }

@@ -1,0 +1,76 @@
+{
+  "scenario": "S1_mitigated",
+  "total_claims": 1,
+  "verified_claims": 1,
+  "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
+  "summary_checks": [],
+  "claims": [
+    {
+      "claim_number": 1,
+      "stage": "authentication_attempt",
+      "explanation": "The evidence shows 8 consecutive failed login attempts from the same IP address, which is indicative of a brute force attack.",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0007",
+        "auth.log:L0008",
+        "auth.log:L0009"
+      ],
+      "status": "verified",
+      "claim_type": "authentication_attempt",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0001",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0002",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0003",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0004",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0005",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0007",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0008",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0009",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "A matching indicator does not prove an attack succeeded."
+  ]
+}

@@ -4,12 +4,12 @@
   "verified_claims": 0,
   "unverified_claims": 0,
   "verification_rate_percent": null,
-  "unverified_rate_percent": null,
+  "summary_checks": [],
   "claims": [],
   "limitations": [
-    "Pattern matching is heuristic and does not prove intent.",
-    "Unverified claims are not automatically confirmed hallucinations.",
-    "Summary and mitigation statements are not individually checked.",
-    "A matching log indicator does not prove an attack succeeded."
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "A matching indicator does not prove an attack succeeded."
   ]
 }

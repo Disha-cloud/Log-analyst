@@ -1,0 +1,154 @@
+[
+  {
+    "scenario": "S1",
+    "description": "SSH brute force, then successful login at 02:14, then sudo reading /etc/shadow.",
+    "lines": 508,
+    "parse_errors": 0,
+    "findings": 4,
+    "tp": 8,
+    "fp": 0,
+    "fn": 0,
+    "tn": 500,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "rules_expected": [
+      "failure_then_success",
+      "login_then_sudo",
+      "ssh_brute_force",
+      "unusual_hour_login"
+    ],
+    "rules_fired": [
+      "failure_then_success",
+      "login_then_sudo",
+      "ssh_brute_force",
+      "unusual_hour_login"
+    ],
+    "rules_missed": [],
+    "rules_unexpected": [],
+    "claims_total": 3,
+    "claims_verified": 2
+  },
+  {
+    "scenario": "S1_mitigated",
+    "description": "S1 with mitigation: account lockout after 5 failures. Brute force continues but never succeeds.",
+    "lines": 509,
+    "parse_errors": 0,
+    "findings": 1,
+    "tp": 8,
+    "fp": 0,
+    "fn": 0,
+    "tn": 501,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "rules_expected": [
+      "ssh_brute_force"
+    ],
+    "rules_fired": [
+      "ssh_brute_force"
+    ],
+    "rules_missed": [],
+    "rules_unexpected": [],
+    "claims_total": 1,
+    "claims_verified": 1
+  },
+  {
+    "scenario": "S2",
+    "description": "Web attack attempts: 2 SQL injection and 2 path traversal requests.",
+    "lines": 504,
+    "parse_errors": 0,
+    "findings": 4,
+    "tp": 4,
+    "fp": 0,
+    "fn": 0,
+    "tn": 500,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "rules_expected": [
+      "path_traversal_indicator",
+      "sql_injection_indicator"
+    ],
+    "rules_fired": [
+      "path_traversal_indicator",
+      "sql_injection_indicator"
+    ],
+    "rules_missed": [],
+    "rules_unexpected": [],
+    "claims_total": 1,
+    "claims_verified": 1
+  },
+  {
+    "scenario": "S3",
+    "description": "Unusual-hour login (03:14) followed by a 50 MB download from the same IP.",
+    "lines": 502,
+    "parse_errors": 0,
+    "findings": 3,
+    "tp": 2,
+    "fp": 0,
+    "fn": 0,
+    "tn": 500,
+    "precision": 1.0,
+    "recall": 1.0,
+    "false_positive_rate": 0.0,
+    "rules_expected": [
+      "correlated_events",
+      "large_data_transfer",
+      "unusual_hour_login"
+    ],
+    "rules_fired": [
+      "correlated_events",
+      "large_data_transfer",
+      "unusual_hour_login"
+    ],
+    "rules_missed": [],
+    "rules_unexpected": [],
+    "claims_total": 3,
+    "claims_verified": 3
+  },
+  {
+    "scenario": "S4",
+    "description": "Benign baseline only.",
+    "lines": 500,
+    "parse_errors": 0,
+    "findings": 0,
+    "tp": 0,
+    "fp": 0,
+    "fn": 0,
+    "tn": 500,
+    "precision": null,
+    "recall": null,
+    "false_positive_rate": 0.0,
+    "rules_expected": [],
+    "rules_fired": [],
+    "rules_missed": [],
+    "rules_unexpected": [],
+    "claims_total": 0,
+    "claims_verified": 0
+  },
+  {
+    "scenario": "S5",
+    "description": "Hard negatives: typo then login, daytime sudo, backup download, harmless 'select' URL. Ground truth: nothing malicious.",
+    "lines": 505,
+    "parse_errors": 0,
+    "findings": 1,
+    "tp": 0,
+    "fp": 1,
+    "fn": 0,
+    "tn": 504,
+    "precision": 0.0,
+    "recall": null,
+    "false_positive_rate": 0.002,
+    "rules_expected": [],
+    "rules_fired": [
+      "large_data_transfer"
+    ],
+    "rules_missed": [],
+    "rules_unexpected": [
+      "large_data_transfer"
+    ],
+    "claims_total": 1,
+    "claims_verified": 1
+  }
+]

@@ -1,369 +1,174 @@
-
+"""Check each LLM attack_chain claim against the raw log lines it cites."""
 import json
 import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
 
+from parser.correlator import LARGE_TRANSFER_BYTES, SQLI_RE, TRAVERSAL_RE
+from parser.log_parser import load_raw_lines
+
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "data"
 
+STAGES = ["authentication_attempt", "successful_authentication", "privileged_activity",
+          "exploitation_attempt", "large_data_transfer", "correlated_events"]
 PATTERNS = {
-    "brute_force": re.compile(
-        r"failed password|authentication failure|failed login",
-        re.IGNORECASE,
-    ),
-    "successful_authentication": re.compile(
-        r"accepted password|accepted publickey|login successful|"
-        r"successful login",
-        re.IGNORECASE,
-    ),
-    "privileged_activity": re.compile(
-        r"\bsudo\b|\bsu\b|user.*(?:added|modified)",
-        re.IGNORECASE,
-    ),
-    "sql_injection": re.compile(
-        r"union\s+(?:all\s+)?select|select.+from|"
-        r"or\s+['\"]?\d+['\"]?\s*=\s*['\"]?\d+|"
-        r"information_schema|%27|%22",
-        re.IGNORECASE,
-    ),
-    "path_traversal": re.compile(
-        r"\.\./|\.\.\\|%2e%2e|/etc/passwd|windows/win\.ini",
-        re.IGNORECASE,
-    ),
+    "authentication_attempt": re.compile(r"Failed password|authentication failure", re.I),
+    "successful_authentication": re.compile(r"Accepted (?:password|publickey)", re.I),
+    "privileged_activity": re.compile(r"\bsudo:.*COMMAND=", re.I),
 }
-
-
-def load_log_lines(scenario_dir):
-    """Load log lines using their embedded IDs where available."""
-    log_lines = {}
-
-    for filename in ("auth.log", "access.log"):
-        path = scenario_dir / filename
-
-        if not path.exists():
-            continue
-
-        with path.open("r", encoding="utf-8", errors="replace") as file:
-            for line_number, raw_line in enumerate(file, start=1):
-                raw_line = raw_line.rstrip("\n")
-                match = re.match(r"^(L\d+)\s+", raw_line)
-                line_id = (
-                    match.group(1)
-                    if match
-                    else f"L{line_number:04d}"
-                )
-
-                evidence_id = f"{filename}:{line_id}"
-                log_lines[evidence_id] = raw_line
-
-    return log_lines
+FALLBACK_KEYWORDS = [  # used only when stage is not an exact known stage; order matters
+    ("correlated_events", ("correlat", "exfiltration")),
+    ("exploitation_attempt", ("sql", "injection", "traversal", "exploit")),
+    ("privileged_activity", ("sudo", "privilege")),
+    ("large_data_transfer", ("large", "transfer", "download")),
+    ("authentication_attempt", ("brute", "failed login", "failed password")),
+    ("successful_authentication", ("successful login", "login success", "accepted")),
+]
+ID_RE = re.compile(r"^(?:(auth\.log|access\.log)\s*:\s*)?L0*(\d+)$", re.I)
+SUMMARY_ID_RE = re.compile(r"\b(?:(?:auth|access)\.log:)?L\d{3,5}\b")
+LARGE_RE = re.compile(r'"\s+(\d{3})\s+(\d+|-)')
 
 
 def identify_claim_type(claim):
-    """Map a claim to a supported verification category."""
-    stage = str(claim.get("stage", "")).lower()
-    explanation = str(claim.get("explanation", "")).lower()
-    text = f"{stage} {explanation}"
-
-    # Check combined claims before individual event types.
-    if any(term in text for term in (
-        "correlated_events",
-        "correlated events",
-        "login followed by transfer",
-        "login_then_large_transfer",
-        "correlated login",
-    )):
-        return "correlated_events"
-
-    if any(term in text for term in (
-        "authentication_attempt",
-        "authentication attempt",
-        "brute force",
-        "brute_force",
-        "failed login attack",
-        "ssh brute",
-        "failed password",
-    )):
-        return "brute_force"
-
-    if any(term in text for term in (
-        "sql injection",
-        "sql_injection",
-        "path traversal",
-        "path_traversal",
-        "exploitation attempt",
-    )):
-        return "exploitation_attempt"
-
-    if any(term in text for term in (
-        "successful authentication",
-        "successful_authentication",
-        "successful login",
-        "login success",
-    )):
-        return "successful_authentication"
-
-    if any(term in text for term in (
-        "privileged activity",
-        "privileged_activity",
-        "privilege escalation",
-    )):
-        return "privileged_activity"
-
-    if any(term in text for term in (
-        "large data transfer",
-        "large_data_transfer",
-        "data exfiltration",
-    )):
-        return "large_data_transfer"
-
+    stage = str(claim.get("stage", "")).strip().lower()
+    if stage in STAGES:
+        return stage
+    text = f"{stage} {str(claim.get('explanation', '')).lower()}"
+    for claim_type, words in FALLBACK_KEYWORDS:
+        if any(w in text for w in words):
+            return claim_type
     return None
 
 
-def line_supports(claim_type, raw_line):
-    """Check whether a log line contains indicators for the claim."""
-    decoded_line = unquote(raw_line)
+def normalize_evidence_id(raw_id, log_lines):
+    """Return (resolved_id, None) or (None, reason)."""
+    eid = str(raw_id).strip()
+    if eid in log_lines:
+        return eid, None
+    match = ID_RE.match(eid)
+    if not match:
+        return None, "Malformed evidence ID."
+    filename, line_id = match.group(1), f"L{int(match.group(2)):04d}"
+    if filename:
+        candidate = f"{filename.lower()}:{line_id}"
+        if candidate in log_lines:
+            return candidate, None
+        return None, "Evidence ID does not exist in the source logs."
+    matches = [k for k in log_lines if k.endswith(f":{line_id}")]
+    if len(matches) == 1:
+        return matches[0], None
+    if len(matches) > 1:
+        return None, "Ambiguous evidence ID (exists in more than one file)."
+    return None, "Evidence ID does not exist in the source logs."
 
+
+def is_large_response(raw):
+    match = LARGE_RE.search(raw)
+    if not match:
+        return False
+    status, size = match.groups()
+    return status == "200" and size != "-" and int(size) >= LARGE_TRANSFER_BYTES
+
+
+def line_supports(claim_type, raw):
+    decoded = unquote(raw)
     if claim_type == "exploitation_attempt":
-        return any(
-            PATTERNS[pattern].search(decoded_line)
-            for pattern in ("sql_injection", "path_traversal")
-        )
-
+        return bool(SQLI_RE.search(decoded) or TRAVERSAL_RE.search(decoded))
     if claim_type == "large_data_transfer":
-        # Apache combined logs can contain additional fields after bytes.
-        match = re.search(
-            r'"\s+(\d{3})\s+(\d+|-)(?:\s|$)',
-            decoded_line,
-        )
-
-        if match and match.group(2) != "-":
-            return (
-                match.group(1) == "200"
-                and int(match.group(2)) >= 10_000_000
-            )
-
-        return bool(re.search(
-            r"large response|large transfer|bytes sent",
-            decoded_line,
-            re.IGNORECASE,
-        ))
-
+        return is_large_response(raw)
+    if claim_type == "correlated_events":
+        return bool(PATTERNS["successful_authentication"].search(raw)) or is_large_response(raw)
     pattern = PATTERNS.get(claim_type)
-    return bool(pattern and pattern.search(decoded_line))
+    return bool(pattern and pattern.search(raw))
 
 
 def verify_claim(claim, log_lines):
-    """Verify cited evidence and return a structured result."""
-    evidence_ids = claim.get("evidence_ids", [])
-
-    if not isinstance(evidence_ids, list) or not evidence_ids:
-        return {
-            "status": "unverified",
-            "claim_type": None,
-            "reason": "No evidence IDs were cited.",
-            "evidence_checks": [],
-        }
-
     claim_type = identify_claim_type(claim)
-
+    evidence_ids = claim.get("evidence_ids") or []
     if claim_type is None:
-        return {
-            "status": "unverified",
-            "claim_type": None,
-            "reason": "No verification rule exists for this claim type.",
-            "evidence_checks": [],
-        }
-
-    evidence_checks = []
-
-    for evidence_id in evidence_ids:
-        if not isinstance(evidence_id, str) or evidence_id not in log_lines:
-            evidence_checks.append({
-                "evidence_id": evidence_id,
-                "status": "fail",
-                "reason": "Evidence ID does not exist in the loaded logs.",
-            })
+        return {"status": "unverified", "claim_type": None,
+                "reason": "Unrecognized claim type.", "evidence_checks": []}
+    if not evidence_ids:
+        return {"status": "unverified", "claim_type": claim_type,
+                "reason": "No evidence IDs supplied.", "evidence_checks": []}
+    checks, resolved_lines = [], []
+    for raw_id in evidence_ids:
+        eid, problem = normalize_evidence_id(raw_id, log_lines)
+        if eid is None:
+            checks.append({"evidence_id": raw_id, "status": "fail", "reason": problem})
             continue
-
-        raw_line = log_lines[evidence_id]
-
-        if claim_type == "correlated_events":
-            evidence_checks.append({
-                "evidence_id": evidence_id,
-                "status": "review_required",
-                "reason": "This claim requires multiple supporting events.",
-            })
-            continue
-
-        supported = line_supports(claim_type, raw_line)
-
-        evidence_checks.append({
-            "evidence_id": evidence_id,
-            "status": "pass" if supported else "fail",
-            "reason": (
-                "The line contains a matching event indicator."
-                if supported
-                else "The line does not contain the expected event indicator."
-            ),
-        })
-
-    # Combined claims must cite existing lines supporting both events.
+        raw = log_lines[eid]
+        resolved_lines.append(raw)
+        note = "" if eid == str(raw_id).strip() else f" (normalized from {raw_id})"
+        if line_supports(claim_type, raw):
+            checks.append({"evidence_id": eid, "status": "pass",
+                           "reason": "Line contains the expected event indicator." + note})
+        else:
+            checks.append({"evidence_id": eid, "status": "fail",
+                           "reason": "Line does not contain the expected event indicator." + note})
     if claim_type == "correlated_events":
-        all_ids_exist = all(
-            isinstance(evidence_id, str) and evidence_id in log_lines
-            for evidence_id in evidence_ids
-        )
-
-        existing_lines = [
-            log_lines[evidence_id]
-            for evidence_id in evidence_ids
-            if isinstance(evidence_id, str)
-            and evidence_id in log_lines
-        ]
-
-        has_auth = any(
-            PATTERNS["successful_authentication"].search(line)
-            for line in existing_lines
-        )
-
-        has_transfer = any(
-            line_supports("large_data_transfer", line)
-            for line in existing_lines
-        )
-
-        passed = all_ids_exist and has_auth and has_transfer
-
-        reason = (
-            "Existing cited lines contain both authentication and "
-            "large-transfer indicators."
-            if passed
-            else "The cited lines do not establish both required events "
-            "or one or more evidence IDs are missing."
-        )
-
-    else:
-        passed = (
-            len(evidence_checks) == len(evidence_ids)
-            and all(
-                check["status"] == "pass"
-                for check in evidence_checks
-            )
-        )
-
-        reason = (
-            "All cited lines support the claimed event."
-            if passed
-            else "One or more cited lines failed verification."
-        )
-
-    return {
-        "status": "verified" if passed else "unverified",
-        "claim_type": claim_type,
-        "reason": reason,
-        "evidence_checks": evidence_checks,
-    }
+        has_login = any(PATTERNS["successful_authentication"].search(x) for x in resolved_lines)
+        has_transfer = any(is_large_response(x) for x in resolved_lines)
+        if not (has_login and has_transfer):
+            checks.append({"evidence_id": "(correlation)", "status": "fail",
+                           "reason": "Correlation needs both a successful login and a large HTTP 200 response."})
+    verified = all(c["status"] == "pass" for c in checks)
+    return {"status": "verified" if verified else "unverified", "claim_type": claim_type,
+            "reason": "All cited lines passed." if verified
+            else "One or more cited lines failed verification.",
+            "evidence_checks": checks}
 
 
-def validate_scenario(scenario_name):
-    """Validate one scenario and save its claim-verification report."""
-    scenario_dir = DATA_DIR / scenario_name
-    report_path = scenario_dir / "llm_analysis.json"
-
-    if not report_path.exists():
-        raise FileNotFoundError(f"Missing report: {report_path}")
-
-    with report_path.open("r", encoding="utf-8") as file:
-        report = json.load(file)
-
-    log_lines = load_log_lines(scenario_dir)
-    claims = report.get("attack_chain", [])
+def check_summary(summary, log_lines):
     results = []
+    for mention in dict.fromkeys(SUMMARY_ID_RE.findall(summary or "")):
+        eid, problem = normalize_evidence_id(mention, log_lines)
+        results.append({"mention": mention, "status": "pass" if eid else "fail",
+                        "reason": "Exists in source logs." if eid else problem})
+    return results
 
-    for index, claim in enumerate(claims, start=1):
-        result = verify_claim(claim, log_lines)
 
-        results.append({
-            "claim_number": index,
-            "stage": claim.get("stage", "unknown"),
-            "explanation": claim.get("explanation", ""),
-            "evidence_ids": claim.get("evidence_ids", []),
-            **result,
-        })
-
-    # Count each claim once, even when multiple evidence IDs fail.
-    verified_count = sum(
-        result["status"] == "verified"
-        for result in results
-    )
-    unverified_count = sum(
-        result["status"] == "unverified"
-        for result in results
-    )
-    total_claims = len(results)
-
-    # Percentages are undefined when there are no claims.
-    verification_rate = (
-        verified_count / total_claims * 100
-        if total_claims else None
-    )
-    unverified_rate = (
-        unverified_count / total_claims * 100
-        if total_claims else None
-    )
-
-    output = {
-        "scenario": scenario_name,
-        "total_claims": total_claims,
-        "verified_claims": verified_count,
-        "unverified_claims": unverified_count,
-        "verification_rate_percent": (
-            round(verification_rate, 2)
-            if verification_rate is not None else None
-        ),
-        "unverified_rate_percent": (
-            round(unverified_rate, 2)
-            if unverified_rate is not None else None
-        ),
-        "claims": results,
+def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
+    scenario_dir = Path(data_dir) / scenario_name
+    analysis_path = scenario_dir / "llm_analysis.json"
+    if not analysis_path.exists():
+        raise FileNotFoundError(f"Missing {analysis_path}. Run: python -m llm.analyzer {scenario_name}")
+    analysis = json.loads(analysis_path.read_text(encoding="utf-8"))
+    log_lines = load_raw_lines(scenario_dir)
+    claims = []
+    for number, claim in enumerate(analysis.get("attack_chain", []), start=1):
+        claims.append({"claim_number": number, "stage": claim.get("stage"),
+                       "explanation": claim.get("explanation"),
+                       "evidence_ids": claim.get("evidence_ids", []),
+                       **verify_claim(claim, log_lines)})
+    total = len(claims)
+    verified = sum(c["status"] == "verified" for c in claims)
+    report = {
+        "scenario": scenario_name, "total_claims": total, "verified_claims": verified,
+        "unverified_claims": total - verified,
+        "verification_rate_percent": round(100 * verified / total, 2) if total else None,
+        "summary_checks": check_summary(analysis.get("summary", ""), log_lines),
+        "claims": claims,
         "limitations": [
-            "Pattern matching is heuristic and does not prove intent.",
-            "Unverified claims are not automatically confirmed hallucinations.",
-            "Summary and mitigation statements are not individually checked.",
-            "A matching log indicator does not prove an attack succeeded.",
+            "Checks use heuristic text patterns, not semantic proof.",
+            "Unverified means unsupported by the cited lines, not automatically false.",
+            "Summary is checked only for cited IDs, not for every statement.",
+            "A matching indicator does not prove an attack succeeded.",
         ],
     }
-
-    output_path = scenario_dir / "claim_validation.json"
-
-    with output_path.open("w", encoding="utf-8") as file:
-        json.dump(output, file, indent=2)
-
-    print(f"\nScenario: {scenario_name}")
-    print(f"Claims checked: {total_claims}")
-    print(f"Verified: {verified_count}")
-    print(f"Unverified: {unverified_count}")
-
-    if total_claims:
-        print(f"Verification rate: {verification_rate:.2f}%")
-        print(f"Unverified rate: {unverified_rate:.2f}%")
-    else:
-        print("Verification rate: N/A (no claims to evaluate)")
-        print("Unverified rate: N/A (no claims to evaluate)")
-
-    for result in results:
-        print(
-            f"\nClaim {result['claim_number']}: "
-            f"{result['stage']} -> {result['status']}"
-        )
-        print(f"Reason: {result['reason']}")
-
-    print(f"\nDetailed results saved to: {output_path}")
-    return output
+    if save:
+        (scenario_dir / "claim_validation.json").write_text(json.dumps(report, indent=2),
+                                                            encoding="utf-8")
+    rate = report["verification_rate_percent"]
+    print(f"{scenario_name}: {total} claims, {verified} verified, {total - verified} unverified, "
+          f"rate={'N/A' if rate is None else str(rate) + '%'}")
+    return report
 
 
 if __name__ == "__main__":
-    scenario = sys.argv[1] if len(sys.argv) > 1 else "S1"
-    validate_scenario(scenario)
+    names = sys.argv[1:] or sorted(p.name for p in DATA_DIR.iterdir()
+                                   if (p / "llm_analysis.json").exists())
+    for name in names:
+        validate_scenario(name)

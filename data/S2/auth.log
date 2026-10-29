@@ -1,1 +1,250 @@
-
+L0001 Oct 28 08:11:23 web01 sshd[1621]: Accepted password for carol from 10.0.1.19 port 58711 ssh2
+L0002 Oct 28 08:11:24 web01 sshd[1621]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0003 Oct 28 08:12:24 web01 sshd[2044]: Accepted password for carol from 10.0.1.25 port 63720 ssh2
+L0004 Oct 28 08:12:25 web01 sshd[2044]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0005 Oct 28 08:29:22 web01 sshd[1792]: Accepted publickey for deploy from 10.0.1.15 port 60859 ssh2
+L0006 Oct 28 08:29:23 web01 sshd[1792]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0007 Oct 28 08:30:24 web01 sshd[2044]: pam_unix(sshd:session): session closed for user carol
+L0008 Oct 28 08:31:36 web01 sshd[2563]: Accepted publickey for deploy from 10.0.1.21 port 48883 ssh2
+L0009 Oct 28 08:31:37 web01 sshd[2563]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0010 Oct 28 08:45:44 web01 sshd[2299]: Accepted publickey for bob from 10.0.1.12 port 50577 ssh2
+L0011 Oct 28 08:45:45 web01 sshd[2299]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0012 Oct 28 08:47:12 web01 sshd[1904]: Accepted password for bob from 10.0.1.22 port 56714 ssh2
+L0013 Oct 28 08:47:13 web01 sshd[1904]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0014 Oct 28 08:55:12 web01 sshd[1904]: pam_unix(sshd:session): session closed for user bob
+L0015 Oct 28 09:02:44 web01 sshd[2299]: pam_unix(sshd:session): session closed for user bob
+L0016 Oct 28 09:17:36 web01 sshd[2563]: pam_unix(sshd:session): session closed for user deploy
+L0017 Oct 28 09:32:00 web01 CRON[2994]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0018 Oct 28 09:33:45 web01 sshd[2656]: Accepted password for carol from 10.0.1.21 port 42986 ssh2
+L0019 Oct 28 09:33:46 web01 sshd[2656]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0020 Oct 28 09:37:02 web01 sshd[1433]: Accepted password for alice from 10.0.1.24 port 54818 ssh2
+L0021 Oct 28 09:37:03 web01 sshd[1433]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0022 Oct 28 09:38:45 web01 sshd[2656]: pam_unix(sshd:session): session closed for user carol
+L0023 Oct 28 09:41:06 web01 CRON[1807]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0024 Oct 28 09:49:02 web01 sshd[1433]: pam_unix(sshd:session): session closed for user alice
+L0025 Oct 28 09:50:32 web01 CRON[1602]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0026 Oct 28 09:51:04 web01 sshd[1922]: Accepted publickey for deploy from 10.0.1.23 port 42301 ssh2
+L0027 Oct 28 09:51:05 web01 sshd[1922]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0028 Oct 28 10:01:12 web01 sshd[2615]: Accepted publickey for alice from 10.0.1.19 port 45736 ssh2
+L0029 Oct 28 10:01:13 web01 sshd[2615]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0030 Oct 28 10:09:49 web01 CRON[2589]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0031 Oct 28 10:13:11 web01 CRON[1429]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0032 Oct 28 10:17:04 web01 sshd[1922]: pam_unix(sshd:session): session closed for user deploy
+L0033 Oct 28 10:19:28 web01 sshd[2689]: Accepted publickey for deploy from 10.0.1.18 port 60946 ssh2
+L0034 Oct 28 10:19:29 web01 sshd[2689]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0035 Oct 28 10:19:52 web01 CRON[1020]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0036 Oct 28 10:29:07 web01 sshd[2508]: Accepted password for alice from 10.0.1.17 port 61614 ssh2
+L0037 Oct 28 10:29:08 web01 sshd[2508]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0038 Oct 28 10:29:12 web01 sshd[2615]: pam_unix(sshd:session): session closed for user alice
+L0039 Oct 28 10:32:29 web01 sshd[1503]: Accepted publickey for carol from 10.0.1.11 port 59043 ssh2
+L0040 Oct 28 10:32:30 web01 sshd[1503]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0041 Oct 28 10:36:06 web01 sshd[1470]: Accepted password for deploy from 10.0.1.27 port 42642 ssh2
+L0042 Oct 28 10:36:07 web01 sshd[1470]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0043 Oct 28 10:39:18 web01 sshd[1977]: Accepted password for deploy from 10.0.1.21 port 59505 ssh2
+L0044 Oct 28 10:39:19 web01 sshd[1977]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0045 Oct 28 10:41:50 web01 sshd[2135]: Accepted password for carol from 10.0.1.15 port 52593 ssh2
+L0046 Oct 28 10:41:51 web01 sshd[2135]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0047 Oct 28 10:44:30 web01 sshd[1560]: Accepted publickey for alice from 10.0.1.23 port 48742 ssh2
+L0048 Oct 28 10:44:31 web01 sshd[1560]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0049 Oct 28 10:46:12 web01 sshd[1817]: Accepted password for alice from 10.0.1.16 port 47518 ssh2
+L0050 Oct 28 10:46:13 web01 sshd[1817]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0051 Oct 28 10:46:28 web01 sshd[2776]: Accepted publickey for alice from 10.0.1.15 port 47469 ssh2
+L0052 Oct 28 10:46:29 web01 sshd[2776]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0053 Oct 28 10:58:06 web01 sshd[1470]: pam_unix(sshd:session): session closed for user deploy
+L0054 Oct 28 10:58:25 web01 CRON[2489]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0055 Oct 28 11:04:21 web01 CRON[2677]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0056 Oct 28 11:07:53 web01 sshd[2594]: Accepted publickey for carol from 10.0.1.12 port 63797 ssh2
+L0057 Oct 28 11:07:54 web01 sshd[2594]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0058 Oct 28 11:07:56 web01 sshd[1917]: Accepted password for bob from 10.0.1.20 port 61714 ssh2
+L0059 Oct 28 11:07:57 web01 sshd[1917]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0060 Oct 28 11:13:50 web01 sshd[2135]: pam_unix(sshd:session): session closed for user carol
+L0061 Oct 28 11:17:39 web01 sshd[1432]: Accepted publickey for bob from 10.0.1.17 port 41102 ssh2
+L0062 Oct 28 11:17:40 web01 sshd[1432]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0063 Oct 28 11:21:06 web01 sshd[2853]: Accepted password for carol from 10.0.1.27 port 62741 ssh2
+L0064 Oct 28 11:21:07 web01 sshd[2853]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0065 Oct 28 11:21:29 web01 sshd[1503]: pam_unix(sshd:session): session closed for user carol
+L0066 Oct 28 11:22:21 web01 CRON[1494]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0067 Oct 28 11:24:24 web01 sshd[2370]: Accepted password for alice from 10.0.1.16 port 44454 ssh2
+L0068 Oct 28 11:24:25 web01 sshd[2370]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0069 Oct 28 11:24:48 web01 CRON[2652]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0070 Oct 28 11:26:19 web01 sshd[1745]: Accepted publickey for alice from 10.0.1.16 port 49962 ssh2
+L0071 Oct 28 11:26:20 web01 sshd[1745]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0072 Oct 28 11:34:22 web01 sshd[2552]: Accepted password for alice from 10.0.1.12 port 54587 ssh2
+L0073 Oct 28 11:34:23 web01 sshd[2552]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0074 Oct 28 11:35:24 web01 sshd[1855]: Accepted publickey for bob from 10.0.1.10 port 44894 ssh2
+L0075 Oct 28 11:35:25 web01 sshd[1855]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0076 Oct 28 11:35:37 web01 sshd[1415]: Accepted publickey for alice from 10.0.1.30 port 61148 ssh2
+L0077 Oct 28 11:35:38 web01 sshd[1415]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0078 Oct 28 11:39:19 web01 sshd[1745]: pam_unix(sshd:session): session closed for user alice
+L0079 Oct 28 11:45:56 web01 sshd[1917]: pam_unix(sshd:session): session closed for user bob
+L0080 Oct 28 11:45:59 web01 CRON[2883]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0081 Oct 28 11:52:32 web01 sshd[2227]: Accepted publickey for deploy from 10.0.1.16 port 47187 ssh2
+L0082 Oct 28 11:52:33 web01 sshd[2227]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0083 Oct 28 11:55:53 web01 sshd[2594]: pam_unix(sshd:session): session closed for user carol
+L0084 Oct 28 11:56:07 web01 sshd[1984]: Accepted password for bob from 10.0.1.27 port 53016 ssh2
+L0085 Oct 28 11:56:08 web01 sshd[1984]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0086 Oct 28 12:02:26 web01 CRON[2929]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0087 Oct 28 12:04:12 web01 sshd[1332]: Accepted password for deploy from 10.0.1.19 port 53010 ssh2
+L0088 Oct 28 12:04:13 web01 sshd[1332]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0089 Oct 28 12:11:22 web01 sshd[2552]: pam_unix(sshd:session): session closed for user alice
+L0090 Oct 28 12:12:02 web01 sshd[1374]: Accepted publickey for carol from 10.0.1.20 port 64377 ssh2
+L0091 Oct 28 12:12:03 web01 sshd[1374]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0092 Oct 28 12:15:12 web01 sshd[1332]: pam_unix(sshd:session): session closed for user deploy
+L0093 Oct 28 12:15:37 web01 sshd[1415]: pam_unix(sshd:session): session closed for user alice
+L0094 Oct 28 12:18:03 web01 sshd[2306]: Accepted password for bob from 10.0.1.12 port 55558 ssh2
+L0095 Oct 28 12:18:04 web01 sshd[2306]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0096 Oct 28 12:19:25 web01 sshd[1420]: Accepted publickey for carol from 10.0.1.10 port 59529 ssh2
+L0097 Oct 28 12:19:26 web01 sshd[1420]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0098 Oct 28 12:24:12 web01 CRON[1552]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0099 Oct 28 12:25:40 web01 sshd[2404]: Accepted publickey for deploy from 10.0.1.16 port 64356 ssh2
+L0100 Oct 28 12:25:41 web01 sshd[2404]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0101 Oct 28 12:27:39 web01 sshd[2004]: Accepted password for bob from 10.0.1.22 port 57580 ssh2
+L0102 Oct 28 12:27:40 web01 sshd[2004]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0103 Oct 28 12:29:32 web01 sshd[2227]: pam_unix(sshd:session): session closed for user deploy
+L0104 Oct 28 12:31:38 web01 sshd[1534]: Accepted publickey for bob from 10.0.1.10 port 58230 ssh2
+L0105 Oct 28 12:31:39 web01 sshd[1534]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0106 Oct 28 12:33:03 web01 sshd[2306]: pam_unix(sshd:session): session closed for user bob
+L0107 Oct 28 12:33:48 web01 sshd[1552]: Accepted publickey for carol from 10.0.1.10 port 45309 ssh2
+L0108 Oct 28 12:33:49 web01 sshd[1552]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0109 Oct 28 12:40:42 web01 CRON[2563]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0110 Oct 28 12:45:57 web01 CRON[2330]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0111 Oct 28 12:49:21 web01 sshd[2905]: Accepted password for carol from 10.0.1.26 port 46774 ssh2
+L0112 Oct 28 12:49:22 web01 sshd[2905]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0113 Oct 28 12:50:39 web01 sshd[2004]: pam_unix(sshd:session): session closed for user bob
+L0114 Oct 28 12:55:05 web01 CRON[1464]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0115 Oct 28 13:05:21 web01 sshd[2905]: pam_unix(sshd:session): session closed for user carol
+L0116 Oct 28 13:06:38 web01 sshd[1534]: pam_unix(sshd:session): session closed for user bob
+L0117 Oct 28 13:07:57 web01 sshd[2564]: Accepted password for alice from 10.0.1.17 port 47612 ssh2
+L0118 Oct 28 13:07:58 web01 sshd[2564]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0119 Oct 28 13:12:48 web01 sshd[1552]: pam_unix(sshd:session): session closed for user carol
+L0120 Oct 28 13:22:04 web01 CRON[1886]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0121 Oct 28 13:27:09 web01 sshd[2005]: Accepted publickey for bob from 10.0.1.24 port 61613 ssh2
+L0122 Oct 28 13:27:10 web01 sshd[2005]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0123 Oct 28 13:28:18 web01 sshd[2893]: Accepted publickey for alice from 10.0.1.11 port 63184 ssh2
+L0124 Oct 28 13:28:19 web01 sshd[2893]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0125 Oct 28 13:37:57 web01 sshd[2564]: pam_unix(sshd:session): session closed for user alice
+L0126 Oct 28 13:47:55 web01 sshd[1473]: Accepted publickey for carol from 10.0.1.19 port 50683 ssh2
+L0127 Oct 28 13:47:56 web01 sshd[1473]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0128 Oct 28 13:53:42 web01 CRON[2392]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0129 Oct 28 13:59:47 web01 CRON[2305]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0130 Oct 28 14:00:12 web01 sshd[1868]: Accepted publickey for bob from 10.0.1.26 port 59405 ssh2
+L0131 Oct 28 14:00:13 web01 sshd[1868]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0132 Oct 28 14:01:18 web01 sshd[2893]: pam_unix(sshd:session): session closed for user alice
+L0133 Oct 28 14:06:23 web01 sshd[1360]: Accepted password for deploy from 10.0.1.14 port 64472 ssh2
+L0134 Oct 28 14:06:24 web01 sshd[1360]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0135 Oct 28 14:09:09 web01 sshd[2704]: Accepted password for deploy from 10.0.1.27 port 43741 ssh2
+L0136 Oct 28 14:09:10 web01 sshd[2704]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0137 Oct 28 14:09:51 web01 sshd[1733]: Accepted publickey for deploy from 10.0.1.18 port 54632 ssh2
+L0138 Oct 28 14:09:52 web01 sshd[1733]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0139 Oct 28 14:14:09 web01 sshd[2005]: pam_unix(sshd:session): session closed for user bob
+L0140 Oct 28 14:15:32 web01 sshd[1862]: Accepted publickey for bob from 10.0.1.17 port 45542 ssh2
+L0141 Oct 28 14:15:33 web01 sshd[1862]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0142 Oct 28 14:28:41 web01 sshd[2591]: Accepted publickey for bob from 10.0.1.15 port 44630 ssh2
+L0143 Oct 28 14:28:42 web01 sshd[2591]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0144 Oct 28 14:38:41 web01 sshd[2591]: pam_unix(sshd:session): session closed for user bob
+L0145 Oct 28 14:42:21 web01 sshd[1774]: Accepted password for bob from 10.0.1.19 port 45109 ssh2
+L0146 Oct 28 14:42:22 web01 sshd[1774]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0147 Oct 28 14:44:51 web01 sshd[1733]: pam_unix(sshd:session): session closed for user deploy
+L0148 Oct 28 14:49:07 web01 CRON[2189]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0149 Oct 28 14:51:51 web01 sshd[1015]: Accepted password for alice from 10.0.1.21 port 58697 ssh2
+L0150 Oct 28 14:51:52 web01 sshd[1015]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0151 Oct 28 14:54:32 web01 sshd[1862]: pam_unix(sshd:session): session closed for user bob
+L0152 Oct 28 14:54:47 web01 CRON[2664]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0153 Oct 28 14:57:38 web01 sshd[2624]: Accepted password for bob from 10.0.1.30 port 64044 ssh2
+L0154 Oct 28 14:57:39 web01 sshd[2624]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0155 Oct 28 14:58:24 web01 sshd[2737]: Accepted password for carol from 10.0.1.27 port 56472 ssh2
+L0156 Oct 28 14:58:25 web01 sshd[2737]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0157 Oct 28 15:05:36 web01 sshd[1015]: Accepted publickey for deploy from 10.0.1.14 port 49054 ssh2
+L0158 Oct 28 15:05:37 web01 sshd[1015]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0159 Oct 28 15:09:31 web01 sshd[2414]: Accepted publickey for alice from 10.0.1.11 port 51383 ssh2
+L0160 Oct 28 15:09:32 web01 sshd[2414]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0161 Oct 28 15:17:20 web01 sshd[2265]: Accepted publickey for carol from 10.0.1.20 port 58512 ssh2
+L0162 Oct 28 15:17:21 web01 sshd[2265]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0163 Oct 28 15:17:44 web01 sshd[2432]: Accepted publickey for carol from 10.0.1.27 port 63172 ssh2
+L0164 Oct 28 15:17:45 web01 sshd[2432]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0165 Oct 28 15:20:38 web01 sshd[2731]: Accepted password for deploy from 10.0.1.20 port 56723 ssh2
+L0166 Oct 28 15:20:39 web01 sshd[2731]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0167 Oct 28 15:30:02 web01 CRON[2290]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0168 Oct 28 15:34:01 web01 sshd[2426]: Accepted password for bob from 10.0.1.16 port 54967 ssh2
+L0169 Oct 28 15:34:02 web01 sshd[2426]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0170 Oct 28 15:35:24 web01 sshd[2737]: pam_unix(sshd:session): session closed for user carol
+L0171 Oct 28 15:38:00 web01 sshd[1496]: Accepted publickey for bob from 10.0.1.13 port 53035 ssh2
+L0172 Oct 28 15:38:01 web01 sshd[1496]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0173 Oct 28 15:42:45 web01 sshd[1963]: Accepted password for alice from 10.0.1.25 port 52012 ssh2
+L0174 Oct 28 15:42:46 web01 sshd[1963]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0175 Oct 28 15:44:01 web01 sshd[2426]: pam_unix(sshd:session): session closed for user bob
+L0176 Oct 28 15:46:17 web01 CRON[2437]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0177 Oct 28 15:46:38 web01 sshd[2624]: pam_unix(sshd:session): session closed for user bob
+L0178 Oct 28 15:46:44 web01 sshd[2432]: pam_unix(sshd:session): session closed for user carol
+L0179 Oct 28 15:53:20 web01 sshd[2265]: pam_unix(sshd:session): session closed for user carol
+L0180 Oct 28 16:10:08 web01 sshd[1704]: Accepted publickey for carol from 10.0.1.21 port 47230 ssh2
+L0181 Oct 28 16:10:09 web01 sshd[1704]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0182 Oct 28 16:14:00 web01 sshd[1496]: pam_unix(sshd:session): session closed for user bob
+L0183 Oct 28 16:20:30 web01 CRON[1281]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0184 Oct 28 16:25:00 web01 sshd[2515]: Accepted password for bob from 10.0.1.30 port 48487 ssh2
+L0185 Oct 28 16:25:01 web01 sshd[2515]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0186 Oct 28 16:27:08 web01 sshd[1704]: pam_unix(sshd:session): session closed for user carol
+L0187 Oct 28 16:34:26 web01 sshd[1680]: Accepted password for deploy from 10.0.1.19 port 57372 ssh2
+L0188 Oct 28 16:34:27 web01 sshd[1680]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0189 Oct 28 16:40:00 web01 sshd[2515]: pam_unix(sshd:session): session closed for user bob
+L0190 Oct 28 16:42:48 web01 sshd[2251]: Accepted password for alice from 10.0.1.17 port 50911 ssh2
+L0191 Oct 28 16:42:49 web01 sshd[2251]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0192 Oct 28 16:42:52 web01 sshd[2598]: Accepted password for deploy from 10.0.1.24 port 41444 ssh2
+L0193 Oct 28 16:42:53 web01 sshd[2598]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0194 Oct 28 16:46:34 web01 sshd[2112]: Accepted password for alice from 10.0.1.20 port 55350 ssh2
+L0195 Oct 28 16:46:35 web01 sshd[2112]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0196 Oct 28 16:46:51 web01 sshd[2166]: Accepted publickey for bob from 10.0.1.19 port 59718 ssh2
+L0197 Oct 28 16:46:52 web01 sshd[2166]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0198 Oct 28 16:52:43 web01 CRON[2481]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0199 Oct 28 16:57:05 web01 CRON[2519]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0200 Oct 28 16:59:48 web01 sshd[2251]: pam_unix(sshd:session): session closed for user alice
+L0201 Oct 28 17:05:21 web01 sshd[2503]: Accepted password for deploy from 10.0.1.24 port 51606 ssh2
+L0202 Oct 28 17:05:22 web01 sshd[2503]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0203 Oct 28 17:06:13 web01 sshd[2388]: Accepted publickey for deploy from 10.0.1.16 port 42338 ssh2
+L0204 Oct 28 17:06:14 web01 sshd[2388]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0205 Oct 28 17:23:51 web01 sshd[2166]: pam_unix(sshd:session): session closed for user bob
+L0206 Oct 28 17:27:46 web01 sshd[1796]: Accepted password for deploy from 10.0.1.11 port 40873 ssh2
+L0207 Oct 28 17:27:47 web01 sshd[1796]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0208 Oct 28 17:31:39 web01 sshd[1859]: Accepted password for bob from 10.0.1.20 port 53154 ssh2
+L0209 Oct 28 17:31:40 web01 sshd[1859]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0210 Oct 28 17:34:13 web01 sshd[2921]: Accepted publickey for alice from 10.0.1.13 port 61526 ssh2
+L0211 Oct 28 17:34:14 web01 sshd[2921]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0212 Oct 28 17:45:21 web01 sshd[2503]: pam_unix(sshd:session): session closed for user deploy
+L0213 Oct 28 17:45:55 web01 sshd[2778]: Accepted password for deploy from 10.0.1.30 port 52803 ssh2
+L0214 Oct 28 17:45:56 web01 sshd[2778]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0215 Oct 28 17:48:13 web01 sshd[2388]: pam_unix(sshd:session): session closed for user deploy
+L0216 Oct 28 17:50:55 web01 CRON[2074]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0217 Oct 28 17:53:01 web01 sshd[2714]: Accepted publickey for bob from 10.0.1.27 port 57289 ssh2
+L0218 Oct 28 17:53:02 web01 sshd[2714]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0219 Oct 28 17:56:29 web01 CRON[2231]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0220 Oct 28 17:57:14 web01 sshd[2209]: Accepted password for bob from 10.0.1.24 port 52287 ssh2
+L0221 Oct 28 17:57:15 web01 sshd[2209]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0222 Oct 28 17:59:22 web01 sshd[2646]: Accepted password for deploy from 10.0.1.14 port 52746 ssh2
+L0223 Oct 28 17:59:23 web01 sshd[2646]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0224 Oct 28 18:03:00 web01 sshd[2225]: Accepted publickey for bob from 10.0.1.24 port 62800 ssh2
+L0225 Oct 28 18:03:01 web01 sshd[2225]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0226 Oct 28 18:03:55 web01 sshd[2778]: pam_unix(sshd:session): session closed for user deploy
+L0227 Oct 28 18:05:01 web01 sshd[2714]: pam_unix(sshd:session): session closed for user bob
+L0228 Oct 28 18:09:29 web01 sshd[1072]: Accepted password for carol from 10.0.1.15 port 64534 ssh2
+L0229 Oct 28 18:09:30 web01 sshd[1072]: pam_unix(sshd:session): session opened for user carol(uid=1002) by (uid=0)
+L0230 Oct 28 18:16:17 web01 CRON[1298]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0231 Oct 28 18:17:50 web01 sshd[1210]: Accepted publickey for deploy from 10.0.1.19 port 56888 ssh2
+L0232 Oct 28 18:17:51 web01 sshd[1210]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0233 Oct 28 18:24:42 web01 sshd[2822]: Accepted publickey for deploy from 10.0.1.25 port 51226 ssh2
+L0234 Oct 28 18:24:43 web01 sshd[2822]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0235 Oct 28 18:28:25 web01 sshd[2715]: Accepted password for deploy from 10.0.1.26 port 63405 ssh2
+L0236 Oct 28 18:28:26 web01 sshd[2715]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0237 Oct 28 18:31:47 web01 CRON[2779]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0238 Oct 28 18:32:47 web01 sshd[1519]: Accepted publickey for bob from 10.0.1.25 port 43252 ssh2
+L0239 Oct 28 18:32:48 web01 sshd[1519]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0240 Oct 28 18:41:44 web01 CRON[2733]: pam_unix(cron:session): session opened for user root(uid=0) by (uid=0)
+L0241 Oct 28 18:50:46 web01 sshd[1780]: Accepted publickey for alice from 10.0.1.25 port 53842 ssh2
+L0242 Oct 28 18:50:47 web01 sshd[1780]: pam_unix(sshd:session): session opened for user alice(uid=1000) by (uid=0)
+L0243 Oct 28 18:56:35 web01 sshd[2436]: Accepted publickey for bob from 10.0.1.16 port 64455 ssh2
+L0244 Oct 28 18:56:36 web01 sshd[2436]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0245 Oct 28 18:58:32 web01 sshd[1273]: Accepted password for deploy from 10.0.1.22 port 51909 ssh2
+L0246 Oct 28 18:58:33 web01 sshd[1273]: pam_unix(sshd:session): session opened for user deploy(uid=1003) by (uid=0)
+L0247 Oct 28 18:59:01 web01 sshd[1404]: Accepted password for bob from 10.0.1.27 port 61463 ssh2
+L0248 Oct 28 18:59:02 web01 sshd[1404]: pam_unix(sshd:session): session opened for user bob(uid=1001) by (uid=0)
+L0249 Oct 28 19:11:01 web01 sshd[1404]: pam_unix(sshd:session): session closed for user bob
+L0250 Oct 28 19:40:32 web01 sshd[1273]: pam_unix(sshd:session): session closed for user deploy

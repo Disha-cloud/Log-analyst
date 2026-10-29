@@ -1,0 +1,26 @@
+{
+  "scenario": "S2",
+  "description": "Web attack attempts: 2 SQL injection and 2 path traversal requests.",
+  "lines": 504,
+  "parse_errors": 0,
+  "findings": 4,
+  "tp": 4,
+  "fp": 0,
+  "fn": 0,
+  "tn": 500,
+  "precision": 1.0,
+  "recall": 1.0,
+  "false_positive_rate": 0.0,
+  "rules_expected": [
+    "path_traversal_indicator",
+    "sql_injection_indicator"
+  ],
+  "rules_fired": [
+    "path_traversal_indicator",
+    "sql_injection_indicator"
+  ],
+  "rules_missed": [],
+  "rules_unexpected": [],
+  "claims_total": 1,
+  "claims_verified": 1
+}

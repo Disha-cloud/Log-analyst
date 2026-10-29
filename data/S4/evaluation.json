@@ -1,0 +1,20 @@
+{
+  "scenario": "S4",
+  "description": "Benign baseline only.",
+  "lines": 500,
+  "parse_errors": 0,
+  "findings": 0,
+  "tp": 0,
+  "fp": 0,
+  "fn": 0,
+  "tn": 500,
+  "precision": null,
+  "recall": null,
+  "false_positive_rate": 0.0,
+  "rules_expected": [],
+  "rules_fired": [],
+  "rules_missed": [],
+  "rules_unexpected": [],
+  "claims_total": 0,
+  "claims_verified": 0
+}

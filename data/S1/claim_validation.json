@@ -4,97 +4,103 @@
   "verified_claims": 2,
   "unverified_claims": 1,
   "verification_rate_percent": 66.67,
-  "unverified_rate_percent": 33.33,
+  "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "authentication_attempt",
-      "explanation": "Multiple failed login attempts from the same IP address (10.0.5.23) within a short period of time.",
+      "explanation": "The brute force attack was identified by the repeated failed login attempts from 10.0.5.23.",
       "evidence_ids": [
-        "auth.log:L0501",
-        "auth.log:L0502",
-        "auth.log:L0503",
-        "auth.log:L0504",
-        "auth.log:L0505",
-        "auth.log:L0506"
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0006"
       ],
       "status": "verified",
-      "claim_type": "brute_force",
-      "reason": "All cited lines support the claimed event.",
+      "claim_type": "authentication_attempt",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
-          "evidence_id": "auth.log:L0501",
+          "evidence_id": "auth.log:L0001",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "auth.log:L0502",
+          "evidence_id": "auth.log:L0002",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "auth.log:L0503",
+          "evidence_id": "auth.log:L0003",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "auth.log:L0504",
+          "evidence_id": "auth.log:L0004",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "auth.log:L0505",
+          "evidence_id": "auth.log:L0005",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "auth.log:L0506",
+          "evidence_id": "auth.log:L0006",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         }
       ]
     },
     {
       "claim_number": 2,
       "stage": "successful_authentication",
-      "explanation": "A successful login from the same IP address (10.0.5.23) to the root account.",
+      "explanation": "The brute force attack was followed by a successful login for admin.",
       "evidence_ids": [
-        "auth.log:L0507"
+        "auth.log:L0007"
       ],
       "status": "verified",
       "claim_type": "successful_authentication",
-      "reason": "All cited lines support the claimed event.",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
-          "evidence_id": "auth.log:L0507",
+          "evidence_id": "auth.log:L0007",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         }
       ]
     },
     {
       "claim_number": 3,
       "stage": "privileged_activity",
-      "explanation": "The user root performed sudo activity within 10 minutes of the successful login.",
+      "explanation": "The admin user used sudo to run a command after the successful login.",
       "evidence_ids": [
-        "auth.log:L0508"
+        "auth.log:L0007",
+        "auth.log:L0008"
       ],
       "status": "unverified",
-      "claim_type": "successful_authentication",
+      "claim_type": "privileged_activity",
       "reason": "One or more cited lines failed verification.",
       "evidence_checks": [
         {
-          "evidence_id": "auth.log:L0508",
+          "evidence_id": "auth.log:L0007",
           "status": "fail",
-          "reason": "The line does not contain the expected event indicator."
+          "reason": "Line does not contain the expected event indicator."
+        },
+        {
+          "evidence_id": "auth.log:L0008",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
         }
       ]
     }
   ],
   "limitations": [
-    "Pattern matching is heuristic and does not prove intent.",
-    "Unverified claims are not automatically confirmed hallucinations.",
-    "Summary and mitigation statements are not individually checked.",
-    "A matching log indicator does not prove an attack succeeded."
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "A matching indicator does not prove an attack succeeded."
   ]
 }

@@ -1,0 +1,24 @@
+{
+  "scenario": "S5",
+  "description": "Hard negatives: typo then login, daytime sudo, backup download, harmless 'select' URL. Ground truth: nothing malicious.",
+  "lines": 505,
+  "parse_errors": 0,
+  "findings": 1,
+  "tp": 0,
+  "fp": 1,
+  "fn": 0,
+  "tn": 504,
+  "precision": 0.0,
+  "recall": null,
+  "false_positive_rate": 0.002,
+  "rules_expected": [],
+  "rules_fired": [
+    "large_data_transfer"
+  ],
+  "rules_missed": [],
+  "rules_unexpected": [
+    "large_data_transfer"
+  ],
+  "claims_total": 1,
+  "claims_verified": 1
+}

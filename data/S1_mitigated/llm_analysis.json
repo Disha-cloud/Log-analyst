@@ -1,0 +1,55 @@
+{
+  "scenario": "S1_mitigated",
+  "model": "qwen2.5:3b",
+  "mode": "grounded",
+  "generated_at": "2026-10-29T10:49:44",
+  "parse_error_count": 0,
+  "rule_findings": [
+    {
+      "rule_id": "ssh_brute_force",
+      "title": "Repeated failed SSH logins",
+      "description": "8 failed logins from 10.0.5.23 within 60 seconds.",
+      "severity": "high",
+      "ip": "10.0.5.23",
+      "user": "admin",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0007",
+        "auth.log:L0008",
+        "auth.log:L0009"
+      ]
+    }
+  ],
+  "summary": "S1_mitigated",
+  "severity": "high",
+  "attack_chain": [
+    {
+      "stage": "authentication_attempt",
+      "mitre_id": "T1110",
+      "explanation": "The evidence shows 8 consecutive failed login attempts from the same IP address, which is indicative of a brute force attack.",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0007",
+        "auth.log:L0008",
+        "auth.log:L0009"
+      ]
+    }
+  ],
+  "mitigations": [
+    "Implement rate limiting on SSH login attempts to prevent brute force attacks.",
+    "Enable SSH key authentication to reduce the need for password-based logins.",
+    "Configure SSH to reject login attempts from known malicious IP addresses.",
+    "Monitor SSH login attempts for unusual patterns and alert on suspicious activity.",
+    "Educate users on the importance of strong passwords and the risks of using weak or default passwords."
+  ],
+  "llm_called": true,
+  "llm_attempts": 1
+}

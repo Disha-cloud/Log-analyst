@@ -1,64 +1,52 @@
 {
   "scenario": "S2",
-  "total_claims": 2,
-  "verified_claims": 2,
+  "total_claims": 1,
+  "verified_claims": 1,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
-  "unverified_rate_percent": 0.0,
+  "summary_checks": [],
   "claims": [
     {
       "claim_number": 1,
       "stage": "exploitation_attempt",
-      "explanation": "Requests contain SQL injection indicators. These indicate possible exploitation attempts, not proof of successful exploitation.",
+      "explanation": "The IP 10.0.6.66 made SQL injection and path traversal attempts, which are indicative of an attacker trying to exploit vulnerabilities in the application.",
       "evidence_ids": [
-        "access.log:L0501",
-        "access.log:L0502"
+        "access.log:L5088",
+        "access.log:L5090",
+        "access.log:L5091",
+        "access.log:L5092"
       ],
       "status": "verified",
       "claim_type": "exploitation_attempt",
-      "reason": "All cited lines support the claimed event.",
+      "reason": "All cited lines passed.",
       "evidence_checks": [
         {
-          "evidence_id": "access.log:L0501",
+          "evidence_id": "access.log:L5088",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "access.log:L0502",
+          "evidence_id": "access.log:L5090",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
-        }
-      ]
-    },
-    {
-      "claim_number": 2,
-      "stage": "exploitation_attempt",
-      "explanation": "Requests contain path traversal indicators. The available evidence does not establish that unauthorized files were accessed.",
-      "evidence_ids": [
-        "access.log:L0503",
-        "access.log:L0504"
-      ],
-      "status": "verified",
-      "claim_type": "exploitation_attempt",
-      "reason": "All cited lines support the claimed event.",
-      "evidence_checks": [
-        {
-          "evidence_id": "access.log:L0503",
-          "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
         },
         {
-          "evidence_id": "access.log:L0504",
+          "evidence_id": "access.log:L5091",
           "status": "pass",
-          "reason": "The line contains a matching event indicator."
+          "reason": "Line contains the expected event indicator."
+        },
+        {
+          "evidence_id": "access.log:L5092",
+          "status": "pass",
+          "reason": "Line contains the expected event indicator."
         }
       ]
     }
   ],
   "limitations": [
-    "Pattern matching is heuristic and does not prove intent.",
-    "Unverified claims are not automatically confirmed hallucinations.",
-    "Summary and mitigation statements are not individually checked.",
-    "A matching log indicator does not prove an attack succeeded."
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "A matching indicator does not prove an attack succeeded."
   ]
 }

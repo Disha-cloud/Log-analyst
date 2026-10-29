@@ -1,40 +1,108 @@
 {
-  "summary": "The findings indicate a pattern of brute force attempts followed by a successful login and subsequent sudo activity.",
-  "severity": "medium",
+  "scenario": "S1",
+  "model": "qwen2.5:3b",
+  "mode": "grounded",
+  "generated_at": "2026-10-29T10:48:50",
+  "parse_error_count": 0,
+  "rule_findings": [
+    {
+      "rule_id": "ssh_brute_force",
+      "title": "Repeated failed SSH logins",
+      "description": "6 failed logins from 10.0.5.23 within 60 seconds.",
+      "severity": "high",
+      "ip": "10.0.5.23",
+      "user": "admin",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0006"
+      ]
+    },
+    {
+      "rule_id": "failure_then_success",
+      "title": "Successful login after repeated failures",
+      "description": "6 failed logins from 10.0.5.23 were followed by a successful login for admin within 10 minutes.",
+      "severity": "high",
+      "ip": "10.0.5.23",
+      "user": "admin",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0006",
+        "auth.log:L0007"
+      ]
+    },
+    {
+      "rule_id": "unusual_hour_login",
+      "title": "Successful login at unusual hour",
+      "description": "admin logged in from 10.0.5.23 at 02:14. Review indicator, not proof of compromise.",
+      "severity": "medium",
+      "ip": "10.0.5.23",
+      "user": "admin",
+      "evidence_ids": [
+        "auth.log:L0007"
+      ]
+    },
+    {
+      "rule_id": "login_then_sudo",
+      "title": "Sudo activity after suspicious login",
+      "description": "admin ran sudo (/usr/bin/cat /etc/shadow) shortly after a suspicious login. This shows sudo use, not confirmed privilege escalation.",
+      "severity": "high",
+      "ip": "10.0.5.23",
+      "user": "admin",
+      "evidence_ids": [
+        "auth.log:L0007",
+        "auth.log:L0008"
+      ]
+    }
+  ],
+  "summary": "The system experienced a brute force attack followed by a successful login, with subsequent sudo activity.",
+  "severity": "high",
   "attack_chain": [
     {
       "stage": "authentication_attempt",
       "mitre_id": "T1110",
-      "explanation": "Multiple failed login attempts from the same IP address (10.0.5.23) within a short period of time.",
+      "explanation": "The brute force attack was identified by the repeated failed login attempts from 10.0.5.23.",
       "evidence_ids": [
-        "auth.log:L0501",
-        "auth.log:L0502",
-        "auth.log:L0503",
-        "auth.log:L0504",
-        "auth.log:L0505",
-        "auth.log:L0506"
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0006"
       ]
     },
     {
       "stage": "successful_authentication",
-      "mitre_id": "",
-      "explanation": "A successful login from the same IP address (10.0.5.23) to the root account.",
+      "mitre_id": "T1110",
+      "explanation": "The brute force attack was followed by a successful login for admin.",
       "evidence_ids": [
-        "auth.log:L0507"
+        "auth.log:L0007"
       ]
     },
     {
       "stage": "privileged_activity",
-      "mitre_id": "T1548.003",
-      "explanation": "The user root performed sudo activity within 10 minutes of the successful login.",
+      "mitre_id": "T1110",
+      "explanation": "The admin user used sudo to run a command after the successful login.",
       "evidence_ids": [
-        "auth.log:L0508"
+        "auth.log:L0007",
+        "auth.log:L0008"
       ]
     }
   ],
   "mitigations": [
-    "Implement account lockout policies to prevent brute force attacks.",
-    "Monitor sudo activity and enforce strict sudo rules to prevent privilege escalation.",
-    "Review and update sudoers file to restrict sudo privileges as necessary."
-  ]
+    "Implement rate limiting on SSH login attempts to prevent brute force attacks.",
+    "Enable multi-factor authentication (MFA) for all administrative accounts.",
+    "Restrict sudo usage to specific commands and users to prevent privilege escalation.",
+    "Regularly review sudo logs for unauthorized or suspicious sudo activity.",
+    "Educate users on the risks of brute force attacks and the importance of strong passwords."
+  ],
+  "llm_called": true,
+  "llm_attempts": 1
 }

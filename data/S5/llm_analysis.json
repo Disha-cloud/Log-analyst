@@ -1,0 +1,41 @@
+{
+  "scenario": "S5",
+  "model": "qwen2.5:3b",
+  "mode": "grounded",
+  "generated_at": "2026-10-29T10:51:38",
+  "parse_error_count": 0,
+  "rule_findings": [
+    {
+      "rule_id": "large_data_transfer",
+      "title": "Large HTTP 200 response",
+      "description": "Server returned 31,457,280 bytes to 10.0.1.50 for /backups/nightly-2026-10-28.tar.gz.",
+      "severity": "low",
+      "ip": "10.0.1.50",
+      "user": null,
+      "evidence_ids": [
+        "access.log:L5144"
+      ]
+    }
+  ],
+  "summary": "Large HTTP response detected, likely a backup transfer. No immediate threat detected.",
+  "severity": "low",
+  "attack_chain": [
+    {
+      "stage": "large_data_transfer",
+      "mitre_id": "T1110",
+      "explanation": "Server returned 31,457,280 bytes to 10.0.1.50 for /backups/nightly-2026-10-28.tar.gz.",
+      "evidence_ids": [
+        "access.log:L5144"
+      ]
+    }
+  ],
+  "mitigations": [
+    "Implement rate limiting for large file downloads.",
+    "Monitor for unusual patterns in backup file names and sizes.",
+    "Restrict access to backup files to authorized users only.",
+    "Enable SSL/TLS encryption for backup transfers.",
+    "Regularly review and update backup policies."
+  ],
+  "llm_called": true,
+  "llm_attempts": 1
+}

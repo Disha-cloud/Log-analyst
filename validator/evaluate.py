@@ -1,226 +1,74 @@
-
+"""Evaluate rule detections against synthetic ground truth."""
 import json
+import sys
 from pathlib import Path
 
-from parser.correlator import analyze_scenario
+from parser.correlator import correlate
 from parser.log_parser import parse_scenario
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+DATA_DIR = PROJECT_ROOT / "data"
+DOCS_DIR = PROJECT_ROOT / "docs"
 
-PROJECT_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_DIR / "data"
+
+def ratio(a, b):
+    return round(a / b, 4) if b else None
 
 
-def evaluate_scenario(scenario_dir):
-    """Compare rule-based detections against ground truth."""
-
-    ground_truth_path = scenario_dir / "ground_truth.json"
-
-    with open(ground_truth_path, "r", encoding="utf-8") as file:
-        ground_truth = json.load(file)
-
-    records, parse_errors = parse_scenario(scenario_dir)
-
-    if parse_errors:
-        raise ValueError(
-            f"{scenario_dir.name} has {len(parse_errors)} parsing errors. "
-            "Fix them before evaluating detection accuracy."
-        )
-
-    analysis = analyze_scenario(scenario_dir)
-    findings = analysis["suspicious_groups"]
-
-    # Map each line ID to its parsed record.
-    records_by_line_id = {}
-
-    for record in records:
-        line_id = record["line_id"]
-        records_by_line_id.setdefault(line_id, []).append(record)
-
-    # Convert ground-truth line IDs to file-qualified IDs.
-    actual_malicious = set()
-
-    for line_id in ground_truth["malicious_line_ids"]:
-        matches = records_by_line_id.get(line_id, [])
-
-        if len(matches) != 1:
-            raise ValueError(
-                f"{scenario_dir.name}: Ground-truth ID {line_id} "
-                f"matches {len(matches)} records. "
-                "Use file-qualified IDs in ground_truth.json."
-            )
-
-        record = matches[0]
-
-        filename = (
-            "auth.log"
-            if record["log_type"] == "auth"
-            else "access.log"
-        )
-
-        actual_malicious.add(f"{filename}:{line_id}")
-
-    # Collect all records flagged by the rule-based detector.
-    detected_malicious = set()
-
-    for finding in findings:
-        detected_malicious.update(finding["evidence_ids"])
-
-    # Build the complete set of file-qualified record IDs.
-    all_record_ids = set()
-
-    for record in records:
-        filename = (
-            "auth.log"
-            if record["log_type"] == "auth"
-            else "access.log"
-        )
-
-        all_record_ids.add(f"{filename}:{record['line_id']}")
-
-    # Reject detections that reference nonexistent records.
-    unknown_detections = detected_malicious - all_record_ids
-
-    if unknown_detections:
-        raise ValueError(
-            f"Unknown detected evidence IDs: {sorted(unknown_detections)}"
-        )
-
-    # Calculate confusion-matrix counts.
-    tp = len(actual_malicious & detected_malicious)
-    fp = len(detected_malicious - actual_malicious)
-    fn = len(actual_malicious - detected_malicious)
-    tn = len(all_record_ids - actual_malicious - detected_malicious)
-
-    # Calculate evaluation metrics.
-    precision = (
-        tp / (tp + fp)
-        if tp + fp else None
-    )
-
-    recall = (
-        tp / (tp + fn)
-        if tp + fn else None
-    )
-
-    specificity = (
-        tn / (tn + fp)
-        if tn + fp else None
-    )
-
-    accuracy = (
-        (tp + tn) / (tp + fp + fn + tn)
-        if tp + fp + fn + tn else None
-    )
-
-    f1_score = (
-        2 * precision * recall / (precision + recall)
-        if precision is not None
-        and recall is not None
-        and precision + recall > 0
-        else None
-    )
-
-    return {
-        "scenario": scenario_dir.name,
-        "total_records": len(all_record_ids),
-        "tp": tp,
-        "fp": fp,
-        "fn": fn,
-        "tn": tn,
-        "precision": precision,
-        "recall": recall,
-        "specificity": specificity,
-        "accuracy": accuracy,
-        "f1_score": f1_score,
+def evaluate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
+    scenario_dir = Path(data_dir) / scenario_name
+    truth = json.loads((scenario_dir / "ground_truth.json").read_text(encoding="utf-8"))
+    records, errors = parse_scenario(scenario_dir)
+    findings = correlate(records)
+    truth_ids = set(truth["suspicious_evidence_ids"])
+    all_ids = set(truth["all_evidence_ids"])
+    predicted = {eid for f in findings for eid in f["evidence_ids"]}
+    tp, fp, fn = len(truth_ids & predicted), len(predicted - truth_ids), len(truth_ids - predicted)
+    tn = len(all_ids - truth_ids - predicted)
+    expected, fired = set(truth.get("expected_rules", [])), {f["rule_id"] for f in findings}
+    result = {
+        "scenario": scenario_name, "description": truth.get("description"),
+        "lines": len(all_ids), "parse_errors": len(errors), "findings": len(findings),
+        "tp": tp, "fp": fp, "fn": fn, "tn": tn,
+        "precision": ratio(tp, tp + fp), "recall": ratio(tp, tp + fn),
+        "false_positive_rate": ratio(fp, fp + tn),
+        "rules_expected": sorted(expected), "rules_fired": sorted(fired),
+        "rules_missed": sorted(expected - fired), "rules_unexpected": sorted(fired - expected),
     }
+    claims_path = scenario_dir / "claim_validation.json"
+    if claims_path.exists():
+        claims = json.loads(claims_path.read_text(encoding="utf-8"))
+        result["claims_total"] = claims["total_claims"]
+        result["claims_verified"] = claims["verified_claims"]
+    if save:
+        (scenario_dir / "evaluation.json").write_text(json.dumps(result, indent=2), encoding="utf-8")
+    return result
 
 
-def display_metric(value):
-    """Format a metric as a percentage or N/A."""
-    return "N/A" if value is None else f"{value:.2%}"
+def fmt(value):
+    return "N/A" if value is None else f"{value:.2f}"
 
 
-def main():
-    results = []
-
-    for scenario_dir in sorted(DATA_DIR.glob("S*")):
-        if not scenario_dir.is_dir():
-            continue
-
-        if not (scenario_dir / "ground_truth.json").exists():
-            continue
-
-        result = evaluate_scenario(scenario_dir)
-        results.append(result)
-
-        print(f"\nScenario: {result['scenario']}")
-        print(f"Total records: {result['total_records']}")
-        print(f"True positives: {result['tp']}")
-        print(f"False positives: {result['fp']}")
-        print(f"False negatives: {result['fn']}")
-        print(f"True negatives: {result['tn']}")
-        print(f"Precision: {display_metric(result['precision'])}")
-        print(f"Recall: {display_metric(result['recall'])}")
-        print(f"Specificity: {display_metric(result['specificity'])}")
-        print(f"Accuracy: {display_metric(result['accuracy'])}")
-        print(f"F1-score: {display_metric(result['f1_score'])}")
-
-    if not results:
-        print("No scenarios with ground_truth.json were found.")
-        return
-
-    # Calculate overall metrics from the combined counts.
-    totals = {
-        key: sum(result[key] for result in results)
-        for key in ("tp", "fp", "fn", "tn")
-    }
-
-    tp = totals["tp"]
-    fp = totals["fp"]
-    fn = totals["fn"]
-    tn = totals["tn"]
-
-    overall_precision = (
-        tp / (tp + fp)
-        if tp + fp else None
-    )
-
-    overall_recall = (
-        tp / (tp + fn)
-        if tp + fn else None
-    )
-
-    overall_specificity = (
-        tn / (tn + fp)
-        if tn + fp else None
-    )
-
-    overall_accuracy = (
-        (tp + tn) / (tp + fp + fn + tn)
-        if tp + fp + fn + tn else None
-    )
-
-    overall_f1 = (
-        2 * overall_precision * overall_recall
-        / (overall_precision + overall_recall)
-        if overall_precision is not None
-        and overall_recall is not None
-        and overall_precision + overall_recall > 0
-        else None
-    )
-
-    print("\n========== OVERALL RESULTS ==========")
-    print(f"Total records: {sum(r['total_records'] for r in results)}")
-    print(f"True positives: {tp}")
-    print(f"False positives: {fp}")
-    print(f"False negatives: {fn}")
-    print(f"True negatives: {tn}")
-    print(f"Precision: {display_metric(overall_precision)}")
-    print(f"Recall: {display_metric(overall_recall)}")
-    print(f"Specificity: {display_metric(overall_specificity)}")
-    print(f"Accuracy: {display_metric(overall_accuracy)}")
-    print(f"F1-score: {display_metric(overall_f1)}")
+def write_results(results):
+    DOCS_DIR.mkdir(exist_ok=True)
+    (DOCS_DIR / "results.json").write_text(json.dumps(results, indent=2), encoding="utf-8")
+    rows = ["| Scenario | Lines | Findings | TP | FP | FN | Precision | Recall | FPR | "
+            "Missed rules | Unexpected rules | Claims verified |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for r in results:
+        claims = (f"{r['claims_verified']}/{r['claims_total']}" if "claims_total" in r else "not run")
+        rows.append(f"| {r['scenario']} | {r['lines']} | {r['findings']} | {r['tp']} | {r['fp']} | "
+                    f"{r['fn']} | {fmt(r['precision'])} | {fmt(r['recall'])} | "
+                    f"{fmt(r['false_positive_rate'])} | {', '.join(r['rules_missed']) or '-'} | "
+                    f"{', '.join(r['rules_unexpected']) or '-'} | {claims} |")
+    note = ("\n\nSynthetic data was designed alongside the rules, so these numbers measure "
+            "internal consistency, not real-world accuracy.\n")
+    (DOCS_DIR / "results.md").write_text("# Detection results\n\n" + "\n".join(rows) + note,
+                                         encoding="utf-8")
+    print("\n".join(rows))
 
 
 if __name__ == "__main__":
-    main()
+    names = sys.argv[1:] or sorted(p.name for p in DATA_DIR.iterdir()
+                                   if (p / "ground_truth.json").exists())
+    write_results([evaluate_scenario(n) for n in names])

@@ -1,0 +1,30 @@
+{
+  "scenario": "S1",
+  "description": "SSH brute force, then successful login at 02:14, then sudo reading /etc/shadow.",
+  "lines": 508,
+  "parse_errors": 0,
+  "findings": 4,
+  "tp": 8,
+  "fp": 0,
+  "fn": 0,
+  "tn": 500,
+  "precision": 1.0,
+  "recall": 1.0,
+  "false_positive_rate": 0.0,
+  "rules_expected": [
+    "failure_then_success",
+    "login_then_sudo",
+    "ssh_brute_force",
+    "unusual_hour_login"
+  ],
+  "rules_fired": [
+    "failure_then_success",
+    "login_then_sudo",
+    "ssh_brute_force",
+    "unusual_hour_login"
+  ],
+  "rules_missed": [],
+  "rules_unexpected": [],
+  "claims_total": 3,
+  "claims_verified": 2
+}

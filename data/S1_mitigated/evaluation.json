@@ -1,0 +1,24 @@
+{
+  "scenario": "S1_mitigated",
+  "description": "S1 with mitigation: account lockout after 5 failures. Brute force continues but never succeeds.",
+  "lines": 509,
+  "parse_errors": 0,
+  "findings": 1,
+  "tp": 8,
+  "fp": 0,
+  "fn": 0,
+  "tn": 501,
+  "precision": 1.0,
+  "recall": 1.0,
+  "false_positive_rate": 0.0,
+  "rules_expected": [
+    "ssh_brute_force"
+  ],
+  "rules_fired": [
+    "ssh_brute_force"
+  ],
+  "rules_missed": [],
+  "rules_unexpected": [],
+  "claims_total": 1,
+  "claims_verified": 1
+}

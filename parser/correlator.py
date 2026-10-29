@@ -1,387 +1,166 @@
-
+"""Deterministic detection and correlation rules."""
 import re
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone
-from pathlib import Path
+from datetime import timedelta
 from urllib.parse import unquote
 
-from parser.log_parser import parse_scenario
+BRUTE_FORCE_THRESHOLD = 5
+BRUTE_FORCE_WINDOW = timedelta(seconds=60)
+FTS_MIN_FAILURES = 3
+FTS_WINDOW = timedelta(minutes=10)
+SUDO_WINDOW = timedelta(minutes=10)
+UNUSUAL_HOURS = range(0, 5)
+LARGE_TRANSFER_BYTES = 10_000_000
+CORRELATION_WINDOW = timedelta(hours=1)
+
+SQLI_RE = re.compile(
+    r"union\s+(all\s+)?select|select\s.+\sfrom\s|or\s+['\"]?\d+['\"]?\s*=\s*['\"]?\d+"
+    r"|information_schema", re.I)
+TRAVERSAL_RE = re.compile(r"\.\./|\.\.\\|/etc/passwd|windows/win\.ini", re.I)
 
 
-# Detection patterns
-FAILED_PATTERN = re.compile(r"Failed password", re.IGNORECASE)
-SUCCESS_PATTERN = re.compile(
-    r"Accepted (?:password|publickey)", re.IGNORECASE
-)
-SQLI_PATTERN = re.compile(
-    r"(?:'\s*OR\s+1\s*=\s*1|UNION\s+SELECT|%27\s*OR)",
-    re.IGNORECASE,
-)
-TRAVERSAL_PATTERN = re.compile(
-    r"(?:\.\./|\.\.%2f|%2e%2e%2f)",
-    re.IGNORECASE,
-)
-USER_PATTERN = re.compile(
-    r"(?:Failed password for (?:invalid user )?|"
-    r"Accepted (?:password|publickey) for )"
-    r"([a-zA-Z0-9_.-]+)"
-)
+def make_finding(rule_id, title, description, evidence_ids, severity, ip=None, user=None):
+    return {"rule_id": rule_id, "title": title, "description": description,
+            "severity": severity, "ip": ip, "user": user,
+            "evidence_ids": list(dict.fromkeys(evidence_ids))}
 
 
-def parse_time(record):
-    """Normalize authentication and Apache timestamps."""
-    value = record.get("timestamp", "")
+def dedupe(findings):
+    seen, unique = set(), []
+    for f in findings:
+        key = (f["rule_id"], tuple(sorted(f["evidence_ids"])))
+        if key not in seen:
+            seen.add(key)
+            unique.append(f)
+    return unique
 
-    formats = [
-        "%b %d %H:%M:%S",
-        "%d/%b/%Y:%H:%M:%S %z",
-    ]
 
-    for fmt in formats:
-        try:
-            parsed = datetime.strptime(value, fmt)
+def detect_brute_force(auth):
+    by_ip = defaultdict(list)
+    for r in auth:
+        if r["event_type"] == "failed_authentication" and r["ip"]:
+            by_ip[r["ip"]].append(r)
+    findings = []
+    for ip, fails in by_ip.items():
+        fails.sort(key=lambda r: r["timestamp"])
+        best = []
+        for i, first in enumerate(fails):
+            window = [x for x in fails[i:]
+                      if x["timestamp"] - first["timestamp"] <= BRUTE_FORCE_WINDOW]
+            if len(window) > len(best):
+                best = window
+        if len(best) >= BRUTE_FORCE_THRESHOLD:
+            findings.append(make_finding(
+                "ssh_brute_force", "Repeated failed SSH logins",
+                f"{len(best)} failed logins from {ip} within "
+                f"{int(BRUTE_FORCE_WINDOW.total_seconds())} seconds.",
+                [x["evidence_id"] for x in best], "high", ip=ip, user=best[0]["user"]))
+    return findings
 
-            if fmt == formats[0]:
-                parsed = parsed.replace(year=2026)
 
-            if parsed.tzinfo is not None:
-                parsed = parsed.astimezone(
-                    timezone.utc
-                ).replace(tzinfo=None)
-
-            return parsed
-
-        except ValueError:
+def detect_failure_then_success(auth):
+    findings, suspicious_logins, flagged_ips = [], [], set()
+    for success in auth:
+        if (success["event_type"] != "successful_authentication" or not success["ip"]
+                or success["ip"] in flagged_ips):
             continue
-
-    return None
-
-
-def enrich(record):
-    """Normalize fields used by the detection rules."""
-    event = dict(record)
-    event["event_time"] = parse_time(record)
-
-    raw = record.get("raw", "")
-    message = record.get("message", "")
-
-    event["user"] = record.get("user")
-
-    if not event["user"]:
-        user_match = USER_PATTERN.search(raw)
-        if user_match:
-            event["user"] = user_match.group(1)
-
-    if record["log_type"] == "auth":
-        if FAILED_PATTERN.search(message):
-            event["event_type"] = "failed_login"
-
-        elif SUCCESS_PATTERN.search(message):
-            event["event_type"] = "successful_login"
-
-        elif re.search(r"\bsudo\b", message, re.IGNORECASE):
-            event["event_type"] = "sudo_activity"
-
-        if event["event_type"] == "sudo_activity":
-            sudo_match = re.search(r"for user (\S+)", raw)
-            if sudo_match:
-                event["user"] = sudo_match.group(1)
-
-    return event
+        prior = [r for r in auth
+                 if r["event_type"] == "failed_authentication" and r["ip"] == success["ip"]
+                 and timedelta(0) <= success["timestamp"] - r["timestamp"] <= FTS_WINDOW]
+        if len(prior) >= FTS_MIN_FAILURES:
+            flagged_ips.add(success["ip"])
+            suspicious_logins.append(success)
+            findings.append(make_finding(
+                "failure_then_success", "Successful login after repeated failures",
+                f"{len(prior)} failed logins from {success['ip']} were followed by a successful "
+                f"login for {success['user']} within 10 minutes.",
+                [r["evidence_id"] for r in prior] + [success["evidence_id"]],
+                "high", ip=success["ip"], user=success["user"]))
+    return findings, suspicious_logins
 
 
-def event_ref(event):
-    """Qualify line IDs because separate files reuse IDs."""
-    filename = (
-        "auth.log"
-        if event["log_type"] == "auth"
-        else "access.log"
-    )
-    return f"{filename}:{event['line_id']}"
+def detect_unusual_hour(auth):
+    findings, suspicious_logins = [], []
+    for r in auth:
+        if r["event_type"] == "successful_authentication" and r["timestamp"].hour in UNUSUAL_HOURS:
+            suspicious_logins.append(r)
+            findings.append(make_finding(
+                "unusual_hour_login", "Successful login at unusual hour",
+                f"{r['user']} logged in from {r['ip']} at {r['timestamp']:%H:%M}. "
+                f"Review indicator, not proof of compromise.",
+                [r["evidence_id"]], "medium", ip=r["ip"], user=r["user"]))
+    return findings, suspicious_logins
 
 
-def make_finding(rule, records, explanation):
-    """Create a finding with traceable evidence."""
-    return {
-        "rule": rule,
-        "explanation": explanation,
-        "evidence_ids": [event_ref(e) for e in records],
-        "events": [
-            {
-                "line_id": event_ref(e),
-                "timestamp": e.get("timestamp"),
-                "event_type": e.get("event_type"),
-                "ip": e.get("ip"),
-                "user": e.get("user"),
-                "message": e.get("message", e.get("path", "")),
-                "status": e.get("status"),
-                "size_bytes": e.get("size_bytes"),
-            }
-            for e in records
-        ],
-    }
+def detect_login_then_sudo(auth, suspicious_logins):
+    findings = []
+    for login in suspicious_logins:
+        for sudo in auth:
+            if (sudo["event_type"] == "privileged_activity" and sudo["user"] == login["user"]
+                    and timedelta(0) <= sudo["timestamp"] - login["timestamp"] <= SUDO_WINDOW):
+                findings.append(make_finding(
+                    "login_then_sudo", "Sudo activity after suspicious login",
+                    f"{sudo['user']} ran sudo ({sudo['command']}) shortly after a suspicious login. "
+                    f"This shows sudo use, not confirmed privilege escalation.",
+                    [login["evidence_id"], sudo["evidence_id"]], "high",
+                    ip=login["ip"], user=login["user"]))
+    return findings
+
+
+def detect_web_attacks(access):
+    findings = []
+    for r in access:
+        decoded = unquote(r["path"])
+        if SQLI_RE.search(decoded):
+            findings.append(make_finding(
+                "sql_injection_indicator", "SQL injection indicator",
+                f"Request from {r['ip']} contains a SQL-injection-like pattern (status "
+                f"{r['status']}). Attempt indicator; success not established.",
+                [r["evidence_id"]], "high", ip=r["ip"]))
+        if TRAVERSAL_RE.search(decoded):
+            findings.append(make_finding(
+                "path_traversal_indicator", "Path traversal indicator",
+                f"Request from {r['ip']} contains a path-traversal-like pattern (status "
+                f"{r['status']}). Attempt indicator; success not established.",
+                [r["evidence_id"]], "high", ip=r["ip"]))
+    return findings
+
+
+def detect_large_transfers(access):
+    return [make_finding(
+        "large_data_transfer", "Large HTTP 200 response",
+        f"Server returned {r['bytes']:,} bytes to {r['ip']} for {r['path']}.",
+        [r["evidence_id"]], "low", ip=r["ip"])
+        for r in access if r["status"] == 200 and r["bytes"] >= LARGE_TRANSFER_BYTES]
+
+
+def detect_correlated(suspicious_logins, access):
+    findings = []
+    for login in suspicious_logins:
+        for r in access:
+            if (r["ip"] == login["ip"] and r["status"] == 200
+                    and r["bytes"] >= LARGE_TRANSFER_BYTES
+                    and timedelta(0) <= r["timestamp"] - login["timestamp"] <= CORRELATION_WINDOW):
+                findings.append(make_finding(
+                    "correlated_events", "Suspicious login linked to large download",
+                    f"Suspicious login by {login['user']} from {login['ip']} followed by a "
+                    f"{r['bytes']:,}-byte download within 1 hour. Correlation alone does not "
+                    f"prove exfiltration.",
+                    [login["evidence_id"], r["evidence_id"]], "high",
+                    ip=login["ip"], user=login["user"]))
+    return findings
 
 
 def correlate(records):
-    """Apply deterministic rules without using an LLM."""
-    events = [enrich(record) for record in records]
-
-    events.sort(
-        key=lambda e: e["event_time"] or datetime.max
-    )
-
-    findings = []
-
-    # Group events by IP.
-    by_ip = defaultdict(list)
-
-    for event in events:
-        if event.get("ip"):
-            by_ip[event["ip"]].append(event)
-
-    # Rule 1: five or more failed logins within 60 seconds.
-    for ip, group in by_ip.items():
-        failures = [
-            e for e in group
-            if e.get("event_type") == "failed_login"
-        ]
-
-        for first in failures:
-            if first["event_time"] is None:
-                continue
-
-            window = [
-                e for e in failures
-                if e["event_time"] is not None
-                and timedelta(0)
-                <= e["event_time"] - first["event_time"]
-                <= timedelta(seconds=60)
-            ]
-
-            if len(window) >= 5:
-                findings.append(
-                    make_finding(
-                        "ssh_brute_force",
-                        window,
-                        f"{len(window)} failed logins from {ip} "
-                        "within 60 seconds.",
-                    )
-                )
-                break
-
-    # Rule 2: failed login followed by success from the same IP.
-    for ip, group in by_ip.items():
-        failures = [
-            e for e in group
-            if e.get("event_type") == "failed_login"
-        ]
-
-        for success in group:
-            if success.get("event_type") != "successful_login":
-                continue
-
-            if success["event_time"] is None:
-                continue
-
-            prior = [
-                e for e in failures
-                if e["event_time"] is not None
-                and timedelta(0)
-                <= success["event_time"] - e["event_time"]
-                <= timedelta(minutes=10)
-            ]
-
-            if prior:
-                findings.append(
-                    make_finding(
-                        "failure_then_success",
-                        prior + [success],
-                        f"A successful login from {ip} followed "
-                        "failed login attempts within 10 minutes.",
-                    )
-                )
-
-    # Rule 3: sudo activity after a successful login by the same user.
-    for event in events:
-        if event.get("event_type") != "sudo_activity":
-            continue
-
-        if not event.get("user") or event["event_time"] is None:
-            continue
-
-        prior_logins = [
-            e for e in events
-            if e.get("event_type") == "successful_login"
-            and e.get("user") == event["user"]
-            and e["event_time"] is not None
-            and timedelta(0)
-            <= event["event_time"] - e["event_time"]
-            <= timedelta(minutes=10)
-        ]
-
-        if prior_logins:
-            findings.append(
-                make_finding(
-                    "login_then_sudo",
-                    [prior_logins[-1], event],
-                    f"User {event['user']} performed sudo activity "
-                    "within 10 minutes of a successful login.",
-                )
-            )
-
-    # Rule 4: SQL injection and path traversal indicators.
-    for event in events:
-        if event.get("log_type") != "apache":
-            continue
-
-        path = event.get("path", "")
-        decoded_path = unquote(path)
-
-        if (
-            SQLI_PATTERN.search(path)
-            or SQLI_PATTERN.search(decoded_path)
-        ):
-            findings.append(
-                make_finding(
-                    "sql_injection_indicator",
-                    [event],
-                    "The request contains a SQL injection pattern. "
-                    "Successful exploitation is not established.",
-                )
-            )
-
-        if (
-            TRAVERSAL_PATTERN.search(path)
-            or TRAVERSAL_PATTERN.search(decoded_path)
-        ):
-            findings.append(
-                make_finding(
-                    "path_traversal_indicator",
-                    [event],
-                    "The request contains a path traversal pattern. "
-                    "The response status alone does not prove file access.",
-                )
-            )
-
-    # Rule 5: successful login during an unusual hour (00:00-04:59).
-    for event in events:
-        if event.get("event_type") != "successful_login":
-            continue
-
-        event_time = event.get("event_time")
-
-        if event_time is not None and event_time.hour < 5:
-            findings.append(
-                make_finding(
-                    "unusual_hour_login",
-                    [event],
-                    "A successful login occurred before 05:00. "
-                    "Timing alone does not establish malicious activity.",
-                )
-            )
-
-    # Rule 6: HTTP 200 response with at least 10 MB of data.
-    large_responses = []
-
-    for event in events:
-        if event.get("log_type") != "apache":
-            continue
-
-        if (
-            event.get("status") == 200
-            and event.get("size_bytes", 0) >= 10_000_000
-        ):
-            large_responses.append(event)
-
-            findings.append(
-                make_finding(
-                    "large_data_transfer_indicator",
-                    [event],
-                    "A large HTTP response was observed. "
-                    "This alone does not prove data exfiltration.",
-                )
-            )
-
-    # Rule 7: correlate an unusual-hour login with a large response
-    # from the same IP within 24 hours.
-    for login in events:
-        if login.get("event_type") != "successful_login":
-            continue
-
-        login_time = login.get("event_time")
-
-        if login_time is None or login_time.hour >= 5:
-            continue
-
-        for response in large_responses:
-            if response.get("ip") != login.get("ip"):
-                continue
-
-            response_time = response.get("event_time")
-
-            if response_time is None:
-                continue
-
-            elapsed = response_time - login_time
-
-            if timedelta(0) <= elapsed <= timedelta(hours=24):
-                findings.append(
-                    make_finding(
-                        "login_then_large_transfer",
-                        [login, response],
-                        "An unusual-hour login and a large HTTP response "
-                        "share the same IP within 24 hours. Investigate "
-                        "whether the events are related; exfiltration "
-                        "is not confirmed.",
-                    )
-                )
-
-    # Deduplicate identical rules with identical evidence.
-    unique = {}
-
-    for finding in findings:
-        key = (
-            finding["rule"],
-            tuple(finding["evidence_ids"]),
-        )
-        unique[key] = finding
-
-    return list(unique.values())
-
-
-def analyze_scenario(scenario_dir):
-    """Parse one scenario and apply the detection rules."""
-    records, errors = parse_scenario(scenario_dir)
-    findings = correlate(records)
-
-    return {
-        "scenario": Path(scenario_dir).name,
-        "parsed_records": len(records),
-        "parse_errors": errors,
-        "suspicious_groups": findings,
-    }
-
-
-if __name__ == "__main__":
-    project_dir = Path(__file__).resolve().parent.parent
-    data_dir = project_dir / "data"
-
-    for scenario_dir in sorted(data_dir.glob("S*")):
-        if not scenario_dir.is_dir():
-            continue
-
-        result = analyze_scenario(scenario_dir)
-
-        print(f"\n{result['scenario']}")
-        print(f"Parsed records: {result['parsed_records']}")
-        print(f"Parse errors: {len(result['parse_errors'])}")
-        print(
-            f"Suspicious groups: "
-            f"{len(result['suspicious_groups'])}"
-        )
-
-        for finding in result["suspicious_groups"]:
-            print(
-                f"  - {finding['rule']}: "
-                f"{', '.join(finding['evidence_ids'])}"
-            )
+    auth = [r for r in records if r["source_file"] == "auth.log"]
+    access = [r for r in records if r["source_file"] == "access.log"]
+    findings = detect_brute_force(auth)
+    fts_findings, fts_logins = detect_failure_then_success(auth)
+    hour_findings, hour_logins = detect_unusual_hour(auth)
+    suspicious_logins = fts_logins + hour_logins
+    findings += fts_findings + hour_findings
+    findings += detect_login_then_sudo(auth, suspicious_logins)
+    findings += detect_web_attacks(access)
+    findings += detect_large_transfers(access)
+    findings += detect_correlated(suspicious_logins, access)
+    return dedupe(findings)

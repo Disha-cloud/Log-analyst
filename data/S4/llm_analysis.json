@@ -1,8 +1,13 @@
 {
-  "summary": "No suspicious groups were identified by the rules.",
+  "scenario": "S4",
+  "model": "qwen2.5:3b",
+  "mode": "grounded",
+  "generated_at": "2026-10-29T10:51:38",
+  "parse_error_count": 0,
+  "rule_findings": [],
+  "summary": "No suspicious activity was identified by the detection rules.",
   "severity": "low",
   "attack_chain": [],
-  "mitigations": [
-    "Continue monitoring and periodically review detection coverage."
-  ]
+  "mitigations": [],
+  "llm_called": false
 }

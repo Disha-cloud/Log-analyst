@@ -1,92 +1,72 @@
-
 import unittest
 
-from validator.claim_validator import verify_claim
+from validator.claim_validator import check_summary, identify_claim_type, verify_claim
+
+LOGS = {
+    "auth.log:L0001": "L0001 Oct 28 02:14:00 web01 sshd[3100]: Failed password for admin from 10.0.5.23 port 51100 ssh2",
+    "auth.log:L0002": "L0002 Oct 28 02:14:45 web01 sshd[3150]: Accepted password for admin from 10.0.5.23 port 51130 ssh2",
+    "auth.log:L0003": "L0003 Oct 28 02:16:45 web01 sudo: admin : TTY=pts/0 ; PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/cat /etc/shadow",
+    "access.log:L5001": 'L5001 10.0.5.23 - - [28/Oct/2026:02:20:00 +0000] "GET /exports/customers_full.csv HTTP/1.1" 200 52428800 "-" "python-requests/2.31"',
+    "access.log:L5002": 'L5002 10.0.6.66 - - [28/Oct/2026:11:20:00 +0000] "GET /products.php?id=1%27%20OR%20%271%27=%271 HTTP/1.1" 500 312 "-" "sqlmap/1.7"',
+}
 
 
-class TestClaimValidator(unittest.TestCase):
+def claim(stage, ids, explanation="x"):
+    return {"stage": stage, "explanation": explanation, "evidence_ids": ids}
 
-    def test_valid_brute_force_evidence_passes(self):
-        claim = {
-            "stage": "authentication_attempt",
-            "explanation": "Repeated failed SSH password attempts indicate brute force.",
-            "evidence_ids": ["auth.log:L0501"],
-        }
 
-        logs = {
-            "auth.log:L0501":
-                "L0501 Oct 28 11:40:00 web01 sshd[2211]: "
-                "Failed password for root from 10.0.5.23 port 51122 ssh2"
-        }
+class ClaimValidatorTests(unittest.TestCase):
+    def status(self, c, logs=LOGS):
+        return verify_claim(c, logs)["status"]
 
-        result = verify_claim(claim, logs)
+    def test_valid_brute_force_verified(self):
+        self.assertEqual(self.status(claim("authentication_attempt", ["auth.log:L0001"])), "verified")
 
-        self.assertEqual(result["status"], "verified")
+    def test_nonexistent_id_unverified(self):
+        self.assertEqual(self.status(claim("authentication_attempt", ["auth.log:L9999"])), "unverified")
 
-    def test_nonexistent_evidence_id_is_flagged(self):
-        claim = {
-            "stage": "authentication_attempt",
-            "explanation": "Repeated failed SSH password attempts indicate brute force.",
-            "evidence_ids": ["auth.log:L9999"],
-        }
+    def test_wrong_line_type_unverified(self):
+        self.assertEqual(self.status(claim("authentication_attempt", ["auth.log:L0002"])), "unverified")
 
-        logs = {
-            "auth.log:L0501":
-                "L0501 Oct 28 11:40:00 web01 sshd[2211]: "
-                "Failed password for root from 10.0.5.23 port 51122 ssh2"
-        }
+    def test_empty_evidence_unverified(self):
+        self.assertEqual(self.status(claim("successful_authentication", [])), "unverified")
 
-        result = verify_claim(claim, logs)
+    def test_unknown_stage_unverified(self):
+        self.assertEqual(self.status(claim("cosmic_event", ["auth.log:L0001"], "reality changed")), "unverified")
 
-        self.assertEqual(result["status"], "unverified")
-        self.assertIn(
-            "does not exist",
-            result["evidence_checks"][0]["reason"],
-        )
+    def test_privileged_stage_beats_login_wording(self):
+        c = claim("privileged_activity", ["auth.log:L0003"], "Sudo after the successful login.")
+        self.assertEqual(identify_claim_type(c), "privileged_activity")
+        self.assertEqual(self.status(c), "verified")
 
-    def test_wrong_event_line_is_flagged(self):
-        claim = {
-            "stage": "authentication_attempt",
-            "explanation": "This line proves a brute-force attempt.",
-            "evidence_ids": ["auth.log:L0507"],
-        }
+    def test_bare_id_resolves(self):
+        self.assertEqual(self.status(claim("authentication_attempt", ["L0001"])), "verified")
 
-        logs = {
-            "auth.log:L0507":
-                "L0507 Oct 28 11:40:15 web01 sshd[2230]: "
-                "Accepted password for root from 10.0.5.23 port 51130 ssh2"
-        }
+    def test_unpadded_id_resolves(self):
+        self.assertEqual(self.status(claim("authentication_attempt", ["auth.log:L1"])), "verified")
 
-        result = verify_claim(claim, logs)
+    def test_ambiguous_bare_id_unverified(self):
+        logs = {"auth.log:L0001": LOGS["auth.log:L0001"],
+                "access.log:L0001": LOGS["access.log:L5001"]}
+        self.assertEqual(self.status(claim("authentication_attempt", ["L0001"]), logs), "unverified")
 
-        self.assertEqual(result["status"], "unverified")
+    def test_mixed_valid_invalid_unverified(self):
+        self.assertEqual(self.status(claim("authentication_attempt",
+                                           ["auth.log:L0001", "auth.log:L9999"])), "unverified")
 
-    def test_missing_evidence_is_flagged(self):
-        claim = {
-            "stage": "authentication_attempt",
-            "explanation": "Brute-force attempt.",
-            "evidence_ids": [],
-        }
+    def test_correlation_both_sides_verified(self):
+        self.assertEqual(self.status(claim("correlated_events",
+                                           ["auth.log:L0002", "access.log:L5001"])), "verified")
 
-        result = verify_claim(claim, {})
+    def test_correlation_one_side_unverified(self):
+        self.assertEqual(self.status(claim("correlated_events", ["auth.log:L0002"])), "unverified")
 
-        self.assertEqual(result["status"], "unverified")
-        self.assertIn("No evidence IDs", result["reason"])
+    def test_sql_injection_verified(self):
+        self.assertEqual(self.status(claim("exploitation_attempt", ["access.log:L5002"])), "verified")
 
-    def test_unsupported_claim_type_is_flagged(self):
-        claim = {
-            "stage": "unknown_event",
-            "explanation": "An unexplained event happened.",
-            "evidence_ids": ["auth.log:L0501"],
-        }
-
-        logs = {
-            "auth.log:L0501": "Some log text"
-        }
-
-        result = verify_claim(claim, logs)
-
-        self.assertEqual(result["status"], "unverified")
+    def test_summary_fake_id_flagged(self):
+        results = check_summary("Attack seen at auth.log:L0001 and L9999.", LOGS)
+        self.assertEqual([r["status"] for r in results], ["pass", "fail"])
 
 
 if __name__ == "__main__":
