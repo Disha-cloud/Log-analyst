@@ -1,10 +1,13 @@
 """Log Analyst: Streamlit demo UI."""
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
+from generator.generate_logs import SCENARIOS
+from generator.import_real import import_scenario
 from llm.analyzer import MODEL, analyze_scenario, ollama_available
 from parser.log_parser import load_raw_lines
 from validator.claim_validator import validate_scenario
@@ -44,6 +47,16 @@ def show_lines(ids, lines):
     st.code(text or "(no evidence cited)", language="log")
 
 
+def mitre_line(check):
+    status = (check or {}).get("status")
+    if status == "match":
+        st.markdown(f":green[LLM-suggested ATT&CK ✓ {check['reason']}]")
+    elif status in ("mismatch", "malformed"):
+        st.markdown(f":orange[LLM-suggested ATT&CK ✗ {check.get('given')}: {check['reason']}]")
+    elif status == "missing":
+        st.markdown(":gray[LLM-suggested ATT&CK: none given]")
+
+
 def render_claims(validation, lines):
     if not validation or not validation["claims"]:
         st.info("No attack-chain claims for this scenario.")
@@ -53,6 +66,7 @@ def render_claims(validation, lines):
         badge = ":green[**VERIFIED**]" if ok else ":red[**UNVERIFIED**]"
         st.markdown(f"**{c['claim_number']}. {c['stage']}** {badge}")
         st.write(c["explanation"])
+        mitre_line(c.get("mitre_check"))
         with st.expander(f"Evidence checks ({len(c['evidence_ids'])} cited)"):
             for ch in c["evidence_checks"]:
                 icon = "✅" if ch["status"] == "pass" else "❌"
@@ -68,37 +82,69 @@ with st.sidebar:
     up = ollama_available()
     st.markdown(f"**Ollama:** {':green[running]' if up else ':red[not running]'}")
     st.caption(f"Model: {MODEL} (local, no data leaves this machine)")
+
+    with st.expander("Analyze your own log"):
+        up_auth = st.file_uploader("auth.log (SSH/sudo syslog)", type=["log", "txt"], key="up_auth")
+        up_access = st.file_uploader("access.log (Apache combined, optional)", type=["log", "txt"],
+                                     key="up_access")
+        up_name = re.sub(r"[^A-Za-z0-9_-]", "_", st.text_input("Scenario name", "UPLOAD")) or "UPLOAD"
+        up_mask = st.checkbox("Mask public IPs", value=True)
+        if st.button("Import log"):
+            if up_name in SCENARIOS:
+                st.error("That name belongs to a synthetic scenario. Pick another.")
+            elif not (up_auth or up_access):
+                st.warning("Upload at least one file.")
+            else:
+                import_scenario(
+                    up_name,
+                    auth_text=up_auth.getvalue().decode("utf-8", "replace") if up_auth else None,
+                    access_text=up_access.getvalue().decode("utf-8", "replace") if up_access else None,
+                    description="Uploaded log. No ground-truth labels.", source="user upload",
+                    mask=up_mask)
+                st.rerun()
+
     names = scenario_names()
     if not names:
         st.error("No data found. Run: python -m generator.generate_logs")
         st.stop()
     name = st.selectbox("Scenario", names)
     if st.button("Run live analysis", disabled=not up):
-        with st.spinner("Rules, LLM, validator running..."):
+        with st.spinner("Rules, LLM and validator running..."):
             analyze_scenario(name)
             validate_scenario(name)
         st.success("Done. Saved results updated.")
-    st.caption("Synthetic data only. Private 10.x IPs. LLM output treated as untrusted until verified.")
+    st.caption("Synthetic or masked data only. LLM output treated as untrusted until verified.")
 
 b = bundle(name)
-analysis, validation, lines = b["analysis"], b["validation"], b["lines"]
+truth, analysis, validation, lines = b["truth"], b["analysis"], b["validation"], b["lines"]
 
 st.title(f"Scenario {name}")
-st.caption(b["truth"]["description"])
+st.caption(truth["description"])
+if not truth.get("labels_available", True):
+    st.info(f"Unlabeled data: no ground truth, so no precision/recall. "
+            f"{truth.get('masked_ip_count', 0)} public IPs masked. Source: {truth.get('source') or 'n/a'}")
 if not analysis:
-    st.warning("No saved analysis. Click 'Run live analysis' or run: python -m llm.analyzer")
+    st.warning("No saved analysis. Click 'Run live analysis' (Ollama must be running).")
     st.stop()
 
 tab_overview, tab_rules, tab_chain, tab_metrics, tab_mitigation = st.tabs(
     ["Overview", "Rule findings", "Attack chain", "Metrics", "Before / After mitigation"])
 
 with tab_overview:
-    cols = st.columns(4)
+    cols = st.columns(5)
     cols[0].markdown(f"Severity\n\n### {severity_badge(analysis['severity'])}")
     cols[1].metric("Rule findings", len(analysis["rule_findings"]))
     total = validation["total_claims"] if validation else len(analysis["attack_chain"])
     cols[2].metric("LLM claims", total)
-    cols[3].metric("Verified", f"{validation['verified_claims']}/{total}" if validation else "not run")
+    cols[3].metric("Evidence verified", f"{validation['verified_claims']}/{total}" if validation else "not run")
+    cols[4].metric("LLM ATT&CK correct",
+                   f"{validation.get('mitre_match', 0)}/{total}" if validation else "not run")
+    techniques = sorted({f["mitre_id"] for f in analysis["rule_findings"] if f.get("mitre_id")})
+    if techniques:
+        st.markdown("**ATT&CK techniques (from rules, authoritative):** " + ", ".join(techniques))
+    if analysis.get("findings_sent_to_llm") and analysis["findings_sent_to_llm"] < len(analysis["rule_findings"]):
+        st.caption(f"LLM saw the top {analysis['findings_sent_to_llm']} findings by severity "
+                   f"(of {len(analysis['rule_findings'])}), to stay within its context window.")
     st.subheader("Summary")
     st.write(analysis["summary"])
     if not analysis.get("llm_called", True):
@@ -117,29 +163,43 @@ with tab_rules:
     if not findings:
         st.success("No rules fired.")
     else:
-        st.dataframe(pd.DataFrame([{"rule": f["rule_id"], "severity": f["severity"], "title": f["title"],
+        st.dataframe(pd.DataFrame([{"rule": f["rule_id"], "severity": f["severity"], "ip": f.get("ip"),
+                                    "title": f["title"], "ATT&CK (rule)": f.get("mitre_id"),
                                     "evidence lines": len(f["evidence_ids"])} for f in findings]),
                      hide_index=True)
-        for f in findings:
-            with st.expander(f"{f['rule_id']}: {f['title']}"):
+        for f in findings[:30]:
+            with st.expander(f"{f['rule_id']}: {f['title']} ({f.get('ip') or '-'})"):
                 st.write(f["description"])
+                if f.get("mitre_id"):
+                    st.caption(f"ATT&CK technique (rule-assigned): {f['mitre_id']}")
                 show_lines(f["evidence_ids"], lines)
+        if len(findings) > 30:
+            st.caption(f"Showing first 30 of {len(findings)} findings.")
 
 with tab_chain:
-    st.caption("Each claim is checked against the raw lines it cites. Verified means the cited lines "
-               "support the event type, not that the activity is proven malicious.")
+    st.caption("Each claim is checked against the raw lines it cites. The LLM's suggested ATT&CK ID is "
+               "checked too, but never trusted: authoritative techniques come from the rules. Verified "
+               "means the cited lines support the event type, not that the activity is proven malicious.")
     render_claims(validation, lines)
 
 with tab_metrics:
     results = load_json(DOCS_DIR / "results.json")
-    st.subheader("Rule detection vs ground truth")
+    st.subheader("Rule detection vs ground truth (synthetic)")
     if results:
         st.dataframe(pd.DataFrame([{k: r.get(k) for k in ("scenario", "findings", "tp", "fp", "fn",
-                                   "precision", "recall", "rules_unexpected")} for r in results]),
-                     hide_index=True)
+                                   "precision", "recall", "rules_unexpected", "claims_verified",
+                                   "mitre_match")} for r in results]), hide_index=True)
         st.caption("Synthetic data, designed alongside rules: internal consistency, not real-world accuracy.")
     else:
         st.info("Run: python -m validator.evaluate")
+    real = load_json(DOCS_DIR / "realworld.json")
+    if real:
+        st.subheader("Real-world run (unlabeled)")
+        st.dataframe(pd.DataFrame([{**{k: r.get(k) for k in ("scenario", "lines", "parse_errors",
+                                    "masked_ips", "findings", "distinct_ips_flagged",
+                                    "claims_verified", "mitre_match")},
+                                    "rules_fired": ", ".join(f"{k}: {v}" for k, v in r["rules_fired"].items())}
+                                   for r in real]), hide_index=True)
     adv = load_json(DOCS_DIR / "adversarial.json")
     st.subheader("Adversarial validator test")
     if adv:
@@ -156,7 +216,8 @@ with tab_metrics:
     st.subheader("Ablation: grounded vs ungrounded LLM")
     if abl:
         st.dataframe(pd.DataFrame([{"mode": m, **v} for m, v in abl["summary"].items()]), hide_index=True)
-        st.caption(f"Model {abl['model']}, temperature {abl['temperature']}, seeds {abl['seeds']}.")
+        st.caption(f"Model {abl['model']}, temperature {abl['temperature']}, seeds {abl['seeds']}. "
+                   f"Key result: attack coverage, not verification rate.")
     else:
         st.info("Run: python -m llm.ablation")
 
@@ -170,7 +231,7 @@ with tab_mitigation:
             if not data or not data["analysis"]:
                 st.info(f"Run: python -m llm.analyzer {scen}")
                 continue
-            a, v = data["analysis"], data["validation"]
+            a = data["analysis"]
             st.markdown(f"Severity: {severity_badge(a['severity'])}")
             st.metric("Rules fired", len(a["rule_findings"]))
             st.write("Rules: " + (", ".join(f["rule_id"] for f in a["rule_findings"]) or "none"))

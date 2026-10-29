@@ -4,8 +4,8 @@
   "verified_claims": 3,
   "unverified_claims": 0,
   "verification_rate_percent": 100.0,
-  "mitre_match": 1,
-  "mitre_mismatch": 2,
+  "mitre_match": 0,
+  "mitre_mismatch": 3,
   "mitre_missing_or_malformed": 0,
   "summary_checks": [],
   "claims": [
@@ -28,14 +28,13 @@
         }
       ],
       "mitre_check": {
-        "status": "match",
+        "status": "mismatch",
         "given": "T1110",
         "expected": [
           "T1021.004",
-          "T1078",
-          "T1110"
+          "T1078"
         ],
-        "reason": "T1110 Brute Force fits successful_authentication."
+        "reason": "T1110 does not fit successful_authentication with this evidence. Expected one of T1021.004, T1078."
       }
     },
     {
@@ -64,7 +63,7 @@
           "T1048",
           "T1567"
         ],
-        "reason": "T1003 does not fit large_data_transfer. Expected one of T1041, T1048, T1567."
+        "reason": "T1003 does not fit large_data_transfer with this evidence. Expected one of T1041, T1048, T1567."
       }
     },
     {
@@ -100,7 +99,7 @@
           "T1078",
           "T1567"
         ],
-        "reason": "T1003 does not fit correlated_events. Expected one of T1041, T1048, T1078, T1567."
+        "reason": "T1003 does not fit correlated_events with this evidence. Expected one of T1041, T1048, T1078, T1567."
       }
     }
   ],

@@ -109,7 +109,7 @@
     "rules_unexpected": [],
     "claims_total": 3,
     "claims_verified": 3,
-    "mitre_match": 1
+    "mitre_match": 0
   },
   {
     "scenario": "S4",

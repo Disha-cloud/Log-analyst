@@ -17,11 +17,22 @@ SQLI_RE = re.compile(
     r"union\s+(all\s+)?select|select\s.+\sfrom\s|or\s+['\"]?\d+['\"]?\s*=\s*['\"]?\d+"
     r"|information_schema", re.I)
 TRAVERSAL_RE = re.compile(r"\.\./|\.\.\\|/etc/passwd|windows/win\.ini", re.I)
+RULE_TO_MITRE = {
+    "ssh_brute_force": "T1110",
+    "failure_then_success": "T1078",
+    "unusual_hour_login": "T1078",
+    "login_then_sudo": "T1548.003",
+    "sql_injection_indicator": "T1190",
+    "path_traversal_indicator": "T1190",
+    "large_data_transfer": "T1048",
+    "correlated_events": "T1048",
+}
 
 
 def make_finding(rule_id, title, description, evidence_ids, severity, ip=None, user=None):
     return {"rule_id": rule_id, "title": title, "description": description,
             "severity": severity, "ip": ip, "user": user,
+            "mitre_id": RULE_TO_MITRE.get(rule_id),
             "evidence_ids": list(dict.fromkeys(evidence_ids))}
 
 

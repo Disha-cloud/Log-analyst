@@ -2,7 +2,7 @@
   "scenario": "REAL_SSH",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:27:06",
+  "generated_at": "2026-10-29T12:48:27",
   "parse_error_count": 0,
   "rule_findings": [
     {

@@ -77,8 +77,12 @@ def identify_claim_type(claim):
     return None
 
 
-def check_mitre(claim_type, mitre_id):
-    expected = MITRE_EXPECTED.get(claim_type, set())
+def check_mitre(claim_type, mitre_id, evidence_kinds=None):
+    expected = set(MITRE_EXPECTED.get(claim_type, set()))
+    # Brute force only fits a successful login if the cited evidence shows failed attempts.
+    if claim_type == "successful_authentication" and evidence_kinds is not None \
+            and "failed" not in evidence_kinds:
+        expected.discard("T1110")
     expected_text = ", ".join(sorted(expected)) or "none"
     if claim_type is None:
         return {"status": "not_checked", "given": mitre_id, "expected": [],
@@ -97,7 +101,7 @@ def check_mitre(claim_type, mitre_id):
         return {"status": "match", "given": value, "expected": sorted(expected),
                 "reason": f"{value} {name} fits {claim_type}."}
     return {"status": "mismatch", "given": value, "expected": sorted(expected),
-            "reason": f"{value} does not fit {claim_type}. Expected one of {expected_text}."}
+            "reason": f"{value} does not fit {claim_type} with this evidence. Expected one of {expected_text}."}
 
 
 def normalize_evidence_id(raw_id, log_lines):
@@ -147,14 +151,13 @@ def line_kinds(raw):
 
 def verify_claim(claim, log_lines):
     claim_type = identify_claim_type(claim)
-    mitre = check_mitre(claim_type, claim.get("mitre_id"))
     evidence_ids = claim.get("evidence_ids") or []
     if claim_type is None:
         return {"status": "unverified", "claim_type": None, "reason": "Unrecognized claim type.",
-                "evidence_checks": [], "mitre_check": mitre}
+                "evidence_checks": [], "mitre_check": check_mitre(None, claim.get("mitre_id"))}
     if not evidence_ids:
         return {"status": "unverified", "claim_type": claim_type, "reason": "No evidence IDs supplied.",
-                "evidence_checks": [], "mitre_check": mitre}
+                "evidence_checks": [], "mitre_check": check_mitre(claim_type, claim.get("mitre_id"))}
     required, allowed = STAGE_EVIDENCE[claim_type]
     checks, seen_kinds = [], set()
     for raw_id in evidence_ids:
@@ -178,7 +181,8 @@ def verify_claim(claim, log_lines):
     verified = all(c["status"] == "pass" for c in checks)
     return {"status": "verified" if verified else "unverified", "claim_type": claim_type,
             "reason": "All cited lines passed." if verified else "One or more checks failed.",
-            "evidence_checks": checks, "mitre_check": mitre}
+            "evidence_checks": checks,
+            "mitre_check": check_mitre(claim_type, claim.get("mitre_id"), seen_kinds)}
 
 
 def check_summary(summary, log_lines):

@@ -35,7 +35,7 @@
           "T1048",
           "T1567"
         ],
-        "reason": "T1110 does not fit large_data_transfer. Expected one of T1041, T1048, T1567."
+        "reason": "T1110 does not fit large_data_transfer with this evidence. Expected one of T1041, T1048, T1567."
       }
     }
   ],

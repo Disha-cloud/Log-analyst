@@ -164,7 +164,7 @@
           "T1003.008",
           "T1548.003"
         ],
-        "reason": "T1110 does not fit privileged_activity. Expected one of T1003.008, T1548.003."
+        "reason": "T1110 does not fit privileged_activity with this evidence. Expected one of T1003.008, T1548.003."
       }
     }
   ],
