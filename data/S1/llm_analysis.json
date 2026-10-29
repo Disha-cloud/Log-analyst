@@ -2,7 +2,7 @@
   "scenario": "S1",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T10:48:50",
+  "generated_at": "2026-10-29T11:08:38",
   "parse_error_count": 0,
   "rule_findings": [
     {

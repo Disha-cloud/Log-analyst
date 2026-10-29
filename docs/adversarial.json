@@ -1,0 +1,329 @@
+{
+  "summary": {
+    "total_cases": 22,
+    "fabricated_caught": 15,
+    "fabricated_total": 15,
+    "valid_accepted": 5,
+    "valid_total": 5,
+    "blind_spots_passed_through": 2,
+    "blind_spots_total": 2,
+    "all_as_expected": true
+  },
+  "cases": [
+    {
+      "id": "V1",
+      "category": "valid_control",
+      "description": "Real brute-force lines",
+      "scenario": "S1",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    },
+    {
+      "id": "V2",
+      "category": "valid_control",
+      "description": "Failures then success",
+      "scenario": "S1",
+      "stage": "successful_authentication",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0007"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    },
+    {
+      "id": "V3",
+      "category": "valid_control",
+      "description": "Login then sudo",
+      "scenario": "S1",
+      "stage": "privileged_activity",
+      "evidence_ids": [
+        "auth.log:L0007",
+        "auth.log:L0008"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    },
+    {
+      "id": "V4",
+      "category": "valid_control",
+      "description": "SQLi and traversal requests",
+      "scenario": "S2",
+      "stage": "exploitation_attempt",
+      "evidence_ids": [
+        "access.log:L5088",
+        "access.log:L5091"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    },
+    {
+      "id": "V5",
+      "category": "valid_control",
+      "description": "Login linked to large download",
+      "scenario": "S3",
+      "stage": "correlated_events",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "access.log:L5001"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    },
+    {
+      "id": "F1",
+      "category": "fabricated",
+      "description": "Nonexistent ID",
+      "scenario": "S1",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "auth.log:L9999"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Evidence ID does not exist in the source logs.; Claim needs at least one line showing: failed."
+    },
+    {
+      "id": "F2",
+      "category": "fabricated",
+      "description": "Malformed ID",
+      "scenario": "S1",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "line 42"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Malformed evidence ID.; Claim needs at least one line showing: failed."
+    },
+    {
+      "id": "F3",
+      "category": "fabricated",
+      "description": "No evidence at all",
+      "scenario": "S1",
+      "stage": "privileged_activity",
+      "evidence_ids": [],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "No evidence IDs supplied."
+    },
+    {
+      "id": "F4",
+      "category": "fabricated",
+      "description": "Invented stage and event",
+      "scenario": "S1",
+      "stage": "ransomware_deployment",
+      "evidence_ids": [
+        "auth.log:L0001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Unrecognized claim type."
+    },
+    {
+      "id": "F5",
+      "category": "fabricated",
+      "description": "Benign login cited as brute force",
+      "scenario": "S1",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "auth.log:L0011"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Line does not support a authentication_attempt claim.; Claim needs at least one line showing: failed."
+    },
+    {
+      "id": "F6",
+      "category": "fabricated",
+      "description": "Benign request cited as exploit",
+      "scenario": "S1",
+      "stage": "exploitation_attempt",
+      "evidence_ids": [
+        "access.log:L5001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Line does not support a exploitation_attempt claim.; Claim needs at least one line showing: web_attack."
+    },
+    {
+      "id": "F7",
+      "category": "fabricated",
+      "description": "Small response cited as large transfer",
+      "scenario": "S1",
+      "stage": "large_data_transfer",
+      "evidence_ids": [
+        "access.log:L5001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Line does not support a large_data_transfer claim.; Claim needs at least one line showing: large."
+    },
+    {
+      "id": "F8",
+      "category": "fabricated",
+      "description": "Correlation with login only",
+      "scenario": "S3",
+      "stage": "correlated_events",
+      "evidence_ids": [
+        "auth.log:L0001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Claim needs at least one line showing: large."
+    },
+    {
+      "id": "F9",
+      "category": "fabricated",
+      "description": "Correlation with transfer only",
+      "scenario": "S3",
+      "stage": "correlated_events",
+      "evidence_ids": [
+        "access.log:L5001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Claim needs at least one line showing: accepted."
+    },
+    {
+      "id": "F10",
+      "category": "fabricated",
+      "description": "Privilege claim without sudo line",
+      "scenario": "S1",
+      "stage": "privileged_activity",
+      "evidence_ids": [
+        "auth.log:L0007"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Claim needs at least one line showing: sudo."
+    },
+    {
+      "id": "F11",
+      "category": "fabricated",
+      "description": "Success claim with only failures",
+      "scenario": "S1",
+      "stage": "successful_authentication",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Claim needs at least one line showing: accepted."
+    },
+    {
+      "id": "F12",
+      "category": "fabricated",
+      "description": "Mixed real and fake IDs",
+      "scenario": "S1",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L9998"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Evidence ID does not exist in the source logs."
+    },
+    {
+      "id": "F13",
+      "category": "fabricated",
+      "description": "Right number, wrong file",
+      "scenario": "S1",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "access.log:L0001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Evidence ID does not exist in the source logs.; Claim needs at least one line showing: failed."
+    },
+    {
+      "id": "F14",
+      "category": "fabricated",
+      "description": "Cron job cited as sudo",
+      "scenario": "S1",
+      "stage": "privileged_activity",
+      "evidence_ids": [
+        "auth.log:L0022"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Line does not support a privileged_activity claim.; Claim needs at least one line showing: sudo."
+    },
+    {
+      "id": "F15",
+      "category": "fabricated",
+      "description": "Auth failure cited as web exploit",
+      "scenario": "S1",
+      "stage": "exploitation_attempt",
+      "evidence_ids": [
+        "auth.log:L0001"
+      ],
+      "expected": "unverified",
+      "actual": "unverified",
+      "as_expected": true,
+      "reason": "Line does not support a exploitation_attempt claim.; Claim needs at least one line showing: web_attack."
+    },
+    {
+      "id": "B1",
+      "category": "known_blind_spot",
+      "description": "Single typo cited as brute force",
+      "scenario": "S5",
+      "stage": "authentication_attempt",
+      "evidence_ids": [
+        "auth.log:L0048"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    },
+    {
+      "id": "B2",
+      "category": "known_blind_spot",
+      "description": "Backup cited as exfiltration",
+      "scenario": "S5",
+      "stage": "large_data_transfer",
+      "evidence_ids": [
+        "access.log:L5144"
+      ],
+      "expected": "verified",
+      "actual": "verified",
+      "as_expected": true,
+      "reason": "All cited lines passed."
+    }
+  ]
+}

@@ -1,0 +1,177 @@
+{
+  "model": "qwen2.5:3b",
+  "temperature": 0.2,
+  "seeds": [
+    1,
+    2
+  ],
+  "benign_sample": 120,
+  "summary": {
+    "grounded": {
+      "runs": 6,
+      "claims": 12,
+      "verified": 10,
+      "verification_rate": 0.8333,
+      "invalid_ids": 0,
+      "benign_lines_cited": 0,
+      "attack_coverage": 1.0,
+      "errors": 0
+    },
+    "ungrounded": {
+      "runs": 6,
+      "claims": 4,
+      "verified": 4,
+      "verification_rate": 1.0,
+      "invalid_ids": 0,
+      "benign_lines_cited": 0,
+      "attack_coverage": 0.1429,
+      "errors": 0
+    }
+  },
+  "rows": [
+    {
+      "scenario": "S1",
+      "mode": "grounded",
+      "seed": 1,
+      "claims": 2,
+      "verified": 1,
+      "invalid_ids": 0,
+      "attack_lines_cited": 8,
+      "attack_lines_total": 8,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S1",
+      "mode": "ungrounded",
+      "seed": 1,
+      "claims": 0,
+      "verified": 0,
+      "invalid_ids": 0,
+      "attack_lines_cited": 0,
+      "attack_lines_total": 8,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S1",
+      "mode": "grounded",
+      "seed": 2,
+      "claims": 3,
+      "verified": 3,
+      "invalid_ids": 0,
+      "attack_lines_cited": 8,
+      "attack_lines_total": 8,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S1",
+      "mode": "ungrounded",
+      "seed": 2,
+      "claims": 0,
+      "verified": 0,
+      "invalid_ids": 0,
+      "attack_lines_cited": 0,
+      "attack_lines_total": 8,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S2",
+      "mode": "grounded",
+      "seed": 1,
+      "claims": 1,
+      "verified": 1,
+      "invalid_ids": 0,
+      "attack_lines_cited": 4,
+      "attack_lines_total": 4,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S2",
+      "mode": "ungrounded",
+      "seed": 1,
+      "claims": 4,
+      "verified": 4,
+      "invalid_ids": 0,
+      "attack_lines_cited": 4,
+      "attack_lines_total": 4,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S2",
+      "mode": "grounded",
+      "seed": 2,
+      "claims": 1,
+      "verified": 1,
+      "invalid_ids": 0,
+      "attack_lines_cited": 4,
+      "attack_lines_total": 4,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S2",
+      "mode": "ungrounded",
+      "seed": 2,
+      "claims": 0,
+      "verified": 0,
+      "invalid_ids": 0,
+      "attack_lines_cited": 0,
+      "attack_lines_total": 4,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S3",
+      "mode": "grounded",
+      "seed": 1,
+      "claims": 2,
+      "verified": 1,
+      "invalid_ids": 0,
+      "attack_lines_cited": 2,
+      "attack_lines_total": 2,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S3",
+      "mode": "ungrounded",
+      "seed": 1,
+      "claims": 0,
+      "verified": 0,
+      "invalid_ids": 0,
+      "attack_lines_cited": 0,
+      "attack_lines_total": 2,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S3",
+      "mode": "grounded",
+      "seed": 2,
+      "claims": 3,
+      "verified": 3,
+      "invalid_ids": 0,
+      "attack_lines_cited": 2,
+      "attack_lines_total": 2,
+      "benign_lines_cited": 0,
+      "error": null
+    },
+    {
+      "scenario": "S3",
+      "mode": "ungrounded",
+      "seed": 2,
+      "claims": 0,
+      "verified": 0,
+      "invalid_ids": 0,
+      "attack_lines_cited": 0,
+      "attack_lines_total": 2,
+      "benign_lines_cited": 0,
+      "error": null
+    }
+  ]
+}
