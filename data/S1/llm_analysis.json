@@ -2,7 +2,7 @@
   "scenario": "S1",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:51:04",
+  "generated_at": "2026-10-29T13:03:34",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -12,6 +12,7 @@
       "severity": "high",
       "ip": "10.0.5.23",
       "user": "admin",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0001",
         "auth.log:L0002",
@@ -28,6 +29,7 @@
       "severity": "high",
       "ip": "10.0.5.23",
       "user": "admin",
+      "mitre_id": "T1078",
       "evidence_ids": [
         "auth.log:L0001",
         "auth.log:L0002",
@@ -45,6 +47,7 @@
       "severity": "medium",
       "ip": "10.0.5.23",
       "user": "admin",
+      "mitre_id": "T1078",
       "evidence_ids": [
         "auth.log:L0007"
       ]
@@ -56,6 +59,7 @@
       "severity": "high",
       "ip": "10.0.5.23",
       "user": "admin",
+      "mitre_id": "T1548.003",
       "evidence_ids": [
         "auth.log:L0007",
         "auth.log:L0008"

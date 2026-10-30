@@ -2,7 +2,7 @@
   "scenario": "S2",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:52:29",
+  "generated_at": "2026-10-29T13:05:02",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -12,6 +12,7 @@
       "severity": "high",
       "ip": "10.0.6.66",
       "user": null,
+      "mitre_id": "T1190",
       "evidence_ids": [
         "access.log:L5088"
       ]
@@ -23,6 +24,7 @@
       "severity": "high",
       "ip": "10.0.6.66",
       "user": null,
+      "mitre_id": "T1190",
       "evidence_ids": [
         "access.log:L5090"
       ]
@@ -34,6 +36,7 @@
       "severity": "high",
       "ip": "10.0.6.66",
       "user": null,
+      "mitre_id": "T1190",
       "evidence_ids": [
         "access.log:L5091"
       ]
@@ -45,6 +48,7 @@
       "severity": "high",
       "ip": "10.0.6.66",
       "user": null,
+      "mitre_id": "T1190",
       "evidence_ids": [
         "access.log:L5092"
       ]

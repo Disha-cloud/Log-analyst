@@ -2,7 +2,7 @@
   "scenario": "S5",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:53:51",
+  "generated_at": "2026-10-29T13:06:09",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -12,6 +12,7 @@
       "severity": "low",
       "ip": "10.0.1.50",
       "user": null,
+      "mitre_id": "T1048",
       "evidence_ids": [
         "access.log:L5144"
       ]

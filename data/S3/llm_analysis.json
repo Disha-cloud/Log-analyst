@@ -2,7 +2,7 @@
   "scenario": "S3",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:53:09",
+  "generated_at": "2026-10-29T13:05:31",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -12,6 +12,7 @@
       "severity": "medium",
       "ip": "10.0.7.77",
       "user": "carol",
+      "mitre_id": "T1078",
       "evidence_ids": [
         "auth.log:L0001"
       ]
@@ -23,6 +24,7 @@
       "severity": "low",
       "ip": "10.0.7.77",
       "user": null,
+      "mitre_id": "T1048",
       "evidence_ids": [
         "access.log:L5001"
       ]
@@ -34,6 +36,7 @@
       "severity": "high",
       "ip": "10.0.7.77",
       "user": "carol",
+      "mitre_id": "T1048",
       "evidence_ids": [
         "auth.log:L0001",
         "access.log:L5001"

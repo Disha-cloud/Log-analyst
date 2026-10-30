@@ -2,7 +2,7 @@
   "scenario": "S4",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:53:51",
+  "generated_at": "2026-10-29T13:06:09",
   "parse_error_count": 0,
   "rule_findings": [],
   "summary": "No suspicious activity was identified by the detection rules.",

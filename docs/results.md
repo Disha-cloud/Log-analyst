@@ -18,5 +18,6 @@ Synthetic data was designed alongside the rules, so these numbers measure intern
 | Scenario | Lines | Parse errors | Masked IPs | Findings | Rules fired | IPs flagged | Claims verified | MITRE match |
 |---|---|---|---|---|---|---|---|---|
 | REAL_SSH | 2000 | 0 | 30 | 9 | ssh_brute_force: 9 | 9 | 1/1 | 1/1 |
+| UPLOAD | 301 | 0 | 7 | 1 | ssh_brute_force: 1 | 1 | 1/1 | 1/1 |
 
 No ground-truth labels: precision and recall cannot be computed for real-world data.

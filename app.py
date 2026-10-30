@@ -101,13 +101,14 @@ with st.sidebar:
                     access_text=up_access.getvalue().decode("utf-8", "replace") if up_access else None,
                     description="Uploaded log. No ground-truth labels.", source="user upload",
                     mask=up_mask)
-                st.rerun()
+                st.session_state["scenario"] = up_name
+                st.success(f"Imported {up_name}. Click Run live analysis below.")
 
     names = scenario_names()
     if not names:
         st.error("No data found. Run: python -m generator.generate_logs")
         st.stop()
-    name = st.selectbox("Scenario", names)
+    name = st.selectbox("Scenario", names, key="scenario")
     if st.button("Run live analysis", disabled=not up):
         with st.spinner("Rules, LLM and validator running..."):
             analyze_scenario(name)

@@ -13,5 +13,20 @@
     "claims_total": 1,
     "claims_verified": 1,
     "mitre_match": 1
+  },
+  {
+    "scenario": "UPLOAD",
+    "source": "user upload",
+    "lines": 301,
+    "parse_errors": 0,
+    "masked_ips": 7,
+    "findings": 1,
+    "rules_fired": {
+      "ssh_brute_force": 1
+    },
+    "distinct_ips_flagged": 1,
+    "claims_total": 1,
+    "claims_verified": 1,
+    "mitre_match": 1
   }
 ]

@@ -2,7 +2,7 @@
   "scenario": "S1_mitigated",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:51:52",
+  "generated_at": "2026-10-29T13:04:36",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -12,6 +12,7 @@
       "severity": "high",
       "ip": "10.0.5.23",
       "user": "admin",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0001",
         "auth.log:L0002",

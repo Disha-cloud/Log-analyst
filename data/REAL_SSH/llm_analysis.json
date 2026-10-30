@@ -2,7 +2,7 @@
   "scenario": "REAL_SSH",
   "model": "qwen2.5:3b",
   "mode": "grounded",
-  "generated_at": "2026-10-29T12:48:27",
+  "generated_at": "2026-10-29T13:00:50",
   "parse_error_count": 0,
   "rule_findings": [
     {
@@ -12,6 +12,7 @@
       "severity": "high",
       "ip": "10.200.0.7",
       "user": "root",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0035",
         "auth.log:L0038",
@@ -48,6 +49,7 @@
       "severity": "high",
       "ip": "10.200.0.8",
       "user": "root",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0125",
         "auth.log:L0128",
@@ -63,6 +65,7 @@
       "severity": "high",
       "ip": "10.200.0.16",
       "user": "admin",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0212",
         "auth.log:L0214",
@@ -86,6 +89,7 @@
       "severity": "high",
       "ip": "10.200.0.20",
       "user": "admin",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0321",
         "auth.log:L0323",
@@ -101,6 +105,7 @@
       "severity": "high",
       "ip": "10.200.0.21",
       "user": "admin",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0389",
         "auth.log:L0395",
@@ -134,6 +139,7 @@
       "severity": "high",
       "ip": "10.200.0.22",
       "user": "root",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0549",
         "auth.log:L0554",
@@ -156,6 +162,7 @@
       "severity": "high",
       "ip": "10.200.0.27",
       "user": "root",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0972",
         "auth.log:L0975",
@@ -171,6 +178,7 @@
       "severity": "high",
       "ip": "10.200.0.28",
       "user": "admin",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L0990",
         "auth.log:L0992",
@@ -187,6 +195,7 @@
       "severity": "high",
       "ip": "10.200.0.31",
       "user": "root",
+      "mitre_id": "T1110",
       "evidence_ids": [
         "auth.log:L1447",
         "auth.log:L1450",
