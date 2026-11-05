@@ -1,15 +1,20 @@
 """Log Analyst: Streamlit demo UI."""
 import json
 import re
+import time
+from collections import deque
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
 
+from feed.live_feed import stream
 from generator.generate_logs import SCENARIOS
 from generator.import_real import import_scenario
 from llm.analyzer import MODEL, analyze_scenario, ollama_available
-from parser.log_parser import load_raw_lines
+from model.predict import load_detector, model_available, score_scenario
+from parser.log_parser import load_raw_lines, parse_scenario
+from scoring.trust_score import WEIGHTS, compute_trust
 from validator.claim_validator import validate_scenario
 
 ROOT = Path(__file__).resolve().parent
@@ -114,6 +119,12 @@ with st.sidebar:
             analyze_scenario(name)
             validate_scenario(name)
         st.success("Done. Saved results updated.")
+    ml_ok = model_available()
+    ml_on = st.checkbox("Show ML detector (experimental)", value=False, disabled=not ml_ok,
+                        help="Optional second detection path: RandomForest on per-IP features. "
+                             "Shown beside the rules; does not change them.")
+    if not ml_ok:
+        st.caption("No trained model. Run: python -m model.train_detector")
     st.caption("Synthetic or masked data only. LLM output treated as untrusted until verified.")
 
 b = bundle(name)
@@ -128,10 +139,44 @@ if not analysis:
     st.warning("No saved analysis. Click 'Run live analysis' (Ollama must be running).")
     st.stop()
 
-tab_overview, tab_rules, tab_chain, tab_metrics, tab_mitigation = st.tabs(
-    ["Overview", "Rule findings", "Attack chain", "Metrics", "Before / After mitigation"])
+tab_overview, tab_rules, tab_chain, tab_metrics, tab_mitigation, tab_live, *tab_extra = st.tabs(
+    ["Overview", "Rule findings", "Attack chain", "Metrics", "Before / After mitigation",
+     "Live feed (simulated)"] + (["ML detector"] if ml_on else []))
+
+TRUST_COLOR = {"high": "green", "moderate": "orange", "low": "red"}
+
+
+def render_trust(analysis, validation):
+    """Trust score box: used by the Overview tab and at the end of the simulated live feed."""
+    trust = compute_trust(analysis["rule_findings"], validation)
+    with st.container(border=True):
+        left, right = st.columns([1, 2])
+        with left:
+            if trust["score"] is None:
+                st.markdown("**Trust score**\n\n## N/A")
+                st.caption(trust["reason"])
+            else:
+                st.markdown(f"**Trust score**\n\n## {trust['score']} / 100  "
+                            f":{TRUST_COLOR[trust['band']]}[**{trust['band'].upper()}**]")
+                st.progress(trust["score"] / 100)
+        with right:
+            if trust["components"]:
+                st.dataframe(pd.DataFrame([{
+                    "Component": c["label"], "Value": f"{c['value']:.0%}", "Weight": f"{c['weight']:.0%}",
+                    "Points": round(c["points"], 1), "Built from": c["detail"]} for c in trust["components"]]),
+                    hide_index=True)
+        if trust["score"] is not None and validation["total_claims"] <= 2:
+            st.caption(f":orange[Based on only {validation['total_claims']} LLM claim(s): "
+                       "the percentages are coarse, so treat this score with extra caution.]")
+        st.caption("How much deterministic evidence supports this analysis: rule confidence "
+                   f"({WEIGHTS['rule_confidence']:.0%}), LLM claims verified against the cited log lines "
+                   f"({WEIGHTS['claims_verified']:.0%}) and LLM ATT&CK IDs that fit ({WEIGHTS['mitre_match']:.0%}). "
+                   "A heuristic with judgment-based weights: it is not a measure of how malicious the "
+                   "activity is, and it does not detect prompt injection.")
+
 
 with tab_overview:
+    render_trust(analysis, validation)
     cols = st.columns(5)
     cols[0].markdown(f"Severity\n\n### {severity_badge(analysis['severity'])}")
     cols[1].metric("Rule findings", len(analysis["rule_findings"]))
@@ -239,3 +284,98 @@ with tab_mitigation:
             st.metric("Attack-chain stages", len(a["attack_chain"]))
             for step in a["attack_chain"]:
                 st.markdown(f"- {step['stage']}")
+
+with tab_live:
+    st.caption("Replays this scenario's log lines in time order and runs the rule engine as each line "
+               "arrives, so alerts fire at the line that triggers them. The LLM analysis, validation and "
+               "trust score shown at the end are loaded from saved results (no model call): this "
+               "simulates a live pipeline, it is not a live LLM run. Changing any control stops a replay.")
+    c_delay, c_go = st.columns([3, 1])
+    delay_ms = c_delay.slider("Delay per screen update (ms)", 0, 200, 30, key="live_delay",
+                              help="Big logs update the screen every few lines to stay smooth.")
+    go = c_go.button("▶ Start live feed", key="live_go", use_container_width=True)
+    if go:
+        records, _ = parse_scenario(DATA_DIR / name)
+        n = len(records)
+        if not n:
+            st.warning("No parsable log lines in this scenario.")
+        else:
+            refresh = max(1, n // 300)
+            status, bar = st.empty(), st.progress(0.0)
+            col_feed, col_alerts = st.columns([3, 2])
+            col_feed.markdown("**Incoming log lines** (⚠ = part of an alert)")
+            col_alerts.markdown("**Alerts**")
+            feed_box, alerts_box = col_feed.empty(), col_alerts.empty()
+            tail, alerts, flagged = deque(maxlen=14), [], set()
+            for i, record, new in stream(records):
+                tail.append(record)
+                for f in new:
+                    alerts.append((i, record, f))
+                    flagged.update(f["evidence_ids"])
+                    st.toast(f"{f['severity'].upper()}: {f['title']} ({f.get('ip') or '-'})", icon="🚨")
+                if i % refresh == 0 or new or i == n:
+                    status.markdown(f"**{i}/{n} lines received** · log time "
+                                    f"{record['timestamp']:%H:%M:%S} · {len(alerts)} alert(s)")
+                    bar.progress(i / n)
+                    feed_box.code("\n".join(("⚠ " if r["evidence_id"] in flagged else "  ") + r["raw"]
+                                            for r in tail), language="log")
+                    alerts_box.markdown("\n".join(
+                        f"- {severity_badge(f['severity'])} **{f['rule_id']}**: {f['title']} "
+                        f"({f.get('ip') or '-'}) · ATT&CK {f.get('mitre_id') or '-'} · line {k}, "
+                        f"{r['timestamp']:%H:%M:%S}" for k, r, f in alerts) or "_No alerts yet_")
+                    time.sleep(delay_ms / 1000)
+            status.markdown(f"**Feed complete: {n}/{n} lines received** · {len(alerts)} alert(s)")
+            st.divider()
+            sev, found = analysis["severity"], len(analysis["rule_findings"])
+            if not found:
+                st.success("No alerts: no detection rules fired for this scenario.")
+            elif sev in ("critical", "high"):
+                st.error(f"🚨 {sev.upper()} severity alert: {found} rule finding(s) across "
+                         f"{len({f['rule_id'] for _, _, f in alerts})} rule(s).")
+            else:
+                st.warning(f"{sev.upper()} severity: {found} rule finding(s).")
+            if {f["rule_id"] for _, _, f in alerts} != {f["rule_id"] for f in analysis["rule_findings"]}:
+                st.caption("Note: the rules that fired live differ from the saved analysis "
+                           "(the logs may have changed since it was generated).")
+            render_trust(analysis, validation)
+
+if tab_extra:
+    with tab_extra[0]:
+        st.caption("Optional second detection path: a RandomForest scores each IP from numeric features "
+                   "(failed logins, request rate, endpoints, status mix, time of day). It runs "
+                   "independently of the rules, LLM and validator, and is shown here for comparison only.")
+        st.warning("Experimental. Trained on ~100 synthetic scenarios. It is accurate on held-out variants "
+                   "of attack types it was trained on (same generator as the rules), but in testing it "
+                   "detected almost nothing from an attack type it had never seen, and on real SSH data "
+                   "it missed most rule-flagged IPs while flagging some with only 2 failed logins. "
+                   "See docs/detector_results.md. The rule findings remain authoritative.")
+        scores = score_scenario(DATA_DIR / name, load_detector())
+        if scores.empty:
+            st.info("No IP-bearing events to score.")
+        else:
+            rule_ips = {f["ip"] for f in analysis["rule_findings"] if f.get("ip")}
+            scores["rules_flagged"] = scores["ip"].isin(rule_ips)
+            ml_ips = set(scores.loc[scores["ml_flagged"], "ip"])
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("IPs flagged by rules", len(rule_ips))
+            c2.metric("IPs flagged by ML", len(ml_ips))
+            c3.metric("Both agree", len(rule_ips & ml_ips))
+            c4.metric("Disagree", len(rule_ips ^ ml_ips))
+
+            def verdict(row):
+                if row["rules_flagged"] and row["ml_flagged"]:
+                    return "both"
+                return "rules only" if row["rules_flagged"] else ("ML only" if row["ml_flagged"] else "neither")
+
+            scores["verdict"] = scores.apply(verdict, axis=1)
+            interesting = scores[scores["verdict"] != "neither"]
+            if interesting.empty:
+                st.success("Neither detector flagged any IP.")
+            else:
+                st.subheader("IPs flagged by at least one detector")
+                st.dataframe(interesting.drop(columns=["rules_flagged", "ml_flagged"])
+                             .round(3)[["ip", "verdict", "ml_score"] + [c for c in interesting.columns
+                                       if c not in ("ip", "verdict", "ml_score", "rules_flagged", "ml_flagged")]],
+                             hide_index=True)
+            with st.expander(f"All scored IPs ({len(scores)})"):
+                st.dataframe(scores.drop(columns=["rules_flagged", "ml_flagged"]).round(3), hide_index=True)
