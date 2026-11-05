@@ -1,0 +1,927 @@
+{
+  "mode": "saved model detector.joblib, trained on 100 scenarios, evaluated on held-out scenarios",
+  "summary": [
+    {
+      "group": "S1",
+      "scenarios": 8,
+      "ml": {
+        "tp": 112,
+        "fp": 0,
+        "fn": 8,
+        "tn": 4000,
+        "precision": 1.0,
+        "recall": 0.9333,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 120,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4000,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "group": "S2",
+      "scenarios": 8,
+      "ml": {
+        "tp": 39,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4000,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 39,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4000,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "group": "S3",
+      "scenarios": 8,
+      "ml": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4000,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 25,
+        "fp": 0,
+        "fn": 0,
+        "tn": 4000,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "group": "benign (S4/S5)",
+      "scenarios": 2,
+      "ml": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 1005,
+        "precision": null,
+        "recall": null,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 1004,
+        "precision": 0.0,
+        "recall": null,
+        "false_positive_rate": 0.001
+      }
+    },
+    {
+      "group": "ALL",
+      "scenarios": 26,
+      "ml": {
+        "tp": 176,
+        "fp": 0,
+        "fn": 8,
+        "tn": 13005,
+        "precision": 1.0,
+        "recall": 0.9565,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 184,
+        "fp": 1,
+        "fn": 0,
+        "tn": 13004,
+        "precision": 0.9946,
+        "recall": 1.0,
+        "false_positive_rate": 0.0001
+      }
+    }
+  ],
+  "labeled": [
+    {
+      "scenario": "S1_v004",
+      "family": "S1",
+      "description": "SSH brute force (16 failures), successful login at 02:50, then sudo /usr/bin/less.",
+      "lines": 518,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 17,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.9444,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.41.205.121"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v010",
+      "family": "S1",
+      "description": "SSH brute force (6 failures), successful login at 01:48, then sudo /usr/bin/less.",
+      "lines": 508,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 7,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.875,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.55.243.97"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 8,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v011",
+      "family": "S1",
+      "description": "SSH brute force (20 failures, username spraying), successful login at 01:33, then sudo /usr/sbin/useradd.",
+      "lines": 522,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 21,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.9545,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.51.135.53"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 22,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v012",
+      "family": "S1",
+      "description": "SSH brute force (18 failures), successful login at 03:46, then sudo /usr/bin/id.",
+      "lines": 520,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 19,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.95,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.43.34.209"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 20,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v025",
+      "family": "S1",
+      "description": "SSH brute force (12 failures), successful login at 01:09, then sudo /usr/bin/cat.",
+      "lines": 514,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 13,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.9286,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.75.98.107"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 14,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v026",
+      "family": "S1",
+      "description": "SSH brute force (16 failures), successful login at 04:07, then sudo /usr/bin/id.",
+      "lines": 518,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 17,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.9444,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.95.235.230"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 18,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v031",
+      "family": "S1",
+      "description": "SSH brute force (7 failures), successful login at 03:00, then sudo /usr/bin/less.",
+      "lines": 509,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 8,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.8889,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.64.206.146"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 9,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S1_v037",
+      "family": "S1",
+      "description": "SSH brute force (9 failures, username spraying), successful login at 03:07, then sudo /bin/bash.",
+      "lines": 511,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 10,
+      "fp": 0,
+      "fn": 1,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 0.9091,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.65.223.44"
+      ],
+      "rules": {
+        "findings": 4,
+        "tp": 11,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v001",
+      "family": "S2",
+      "description": "Web attack attempts from Mozilla/5.0 (X11; Linux x86_64): 1 SQL injection and 2 path traversal requests.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.47.56.165"
+      ],
+      "rules": {
+        "findings": 3,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v009",
+      "family": "S2",
+      "description": "Web attack attempts from python-requests/2.31: 4 SQL injection and 1 path traversal requests.",
+      "lines": 505,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.10.181.162"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v013",
+      "family": "S2",
+      "description": "Web attack attempts from Nikto/2.5.0: 4 SQL injection and 2 path traversal requests.",
+      "lines": 506,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 6,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.31.164.226"
+      ],
+      "rules": {
+        "findings": 6,
+        "tp": 6,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v014",
+      "family": "S2",
+      "description": "Web attack attempts from Mozilla/5.0 (X11; Linux x86_64): 4 SQL injection and 3 path traversal requests.",
+      "lines": 507,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 7,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.75.43.125"
+      ],
+      "rules": {
+        "findings": 7,
+        "tp": 7,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v015",
+      "family": "S2",
+      "description": "Web attack attempts from sqlmap/1.7: 0 SQL injection and 3 path traversal requests.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.34.185.235"
+      ],
+      "rules": {
+        "findings": 3,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v016",
+      "family": "S2",
+      "description": "Web attack attempts from curl/8.4.0: 0 SQL injection and 5 path traversal requests.",
+      "lines": 505,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.17.209.236"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v028",
+      "family": "S2",
+      "description": "Web attack attempts from python-requests/2.31: 5 SQL injection and 0 path traversal requests.",
+      "lines": 505,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.85.210.184"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S2_v033",
+      "family": "S2",
+      "description": "Web attack attempts from python-requests/2.31: 2 SQL injection and 3 path traversal requests.",
+      "lines": 505,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 5,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.95.208.93"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 5,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v001",
+      "family": "S3",
+      "description": "Unusual-hour login (03:14) followed by 1 large download(s) from the same IP.",
+      "lines": 502,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 2,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.94.167.129"
+      ],
+      "rules": {
+        "findings": 3,
+        "tp": 2,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v006",
+      "family": "S3",
+      "description": "Unusual-hour login (01:41) followed by 2 large download(s) from the same IP.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.72.124.105"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v010",
+      "family": "S3",
+      "description": "Unusual-hour login (01:37) followed by 2 large download(s) from the same IP.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.74.144.89"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v014",
+      "family": "S3",
+      "description": "Unusual-hour login (01:13) followed by 3 large download(s) from the same IP.",
+      "lines": 504,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.99.142.80"
+      ],
+      "rules": {
+        "findings": 7,
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v020",
+      "family": "S3",
+      "description": "Unusual-hour login (03:19) followed by 3 large download(s) from the same IP.",
+      "lines": 504,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.43.177.13"
+      ],
+      "rules": {
+        "findings": 7,
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v029",
+      "family": "S3",
+      "description": "Unusual-hour login (02:05) followed by 2 large download(s) from the same IP.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.30.170.69"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v031",
+      "family": "S3",
+      "description": "Unusual-hour login (03:04) followed by 2 large download(s) from the same IP.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.32.201.134"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S3_v040",
+      "family": "S3",
+      "description": "Unusual-hour login (02:15) followed by 2 large download(s) from the same IP.",
+      "lines": 503,
+      "parse_errors": 0,
+      "findings": 1,
+      "tp": 3,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [
+        "10.68.126.229"
+      ],
+      "rules": {
+        "findings": 5,
+        "tp": 3,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S4",
+      "family": "S4",
+      "description": "Benign baseline only.",
+      "lines": 500,
+      "parse_errors": 0,
+      "findings": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 500,
+      "precision": null,
+      "recall": null,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [],
+      "rules": {
+        "findings": 0,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "tn": 500,
+        "precision": null,
+        "recall": null,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "scenario": "S5",
+      "family": "S5",
+      "description": "Hard negatives: typo then login, daytime sudo, backup download, harmless 'select' URL. Ground truth: nothing malicious.",
+      "lines": 505,
+      "parse_errors": 0,
+      "findings": 0,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 505,
+      "precision": null,
+      "recall": null,
+      "false_positive_rate": 0.0,
+      "flagged_ips": [],
+      "rules": {
+        "findings": 1,
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 504,
+        "precision": 0.0,
+        "recall": null,
+        "false_positive_rate": 0.002
+      }
+    }
+  ],
+  "unlabeled": [
+    {
+      "scenario": "REAL_SSH",
+      "source": "Loghub OpenSSH_2k sample. J. Zhu, S. He, P. He, J. Liu, M. R. Lyu, 'Loghub: A Large Collection of System Log Datasets for AI-driven Log Analytics', ISSRE 2023. https://github.com/logpai/loghub",
+      "lines": 2000,
+      "parse_errors": 0,
+      "masked_ips": 30,
+      "findings": 5,
+      "distinct_ips_flagged": 5,
+      "rule_engine_ips_flagged": 9,
+      "agree_with_rules": 2,
+      "model_only": 3,
+      "rules_only": 7
+    }
+  ],
+  "transfer": [
+    {
+      "held_out_family": "S1",
+      "scenarios": 42,
+      "train_positives": 82,
+      "ml": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 607,
+        "tn": 21001,
+        "precision": null,
+        "recall": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 607,
+        "fp": 0,
+        "fn": 0,
+        "tn": 21001,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "held_out_family": "S2",
+      "scenarios": 41,
+      "train_positives": 83,
+      "ml": {
+        "tp": 7,
+        "fp": 0,
+        "fn": 183,
+        "tn": 20500,
+        "precision": 1.0,
+        "recall": 0.0368,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 190,
+        "fp": 0,
+        "fn": 0,
+        "tn": 20500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    },
+    {
+      "held_out_family": "S3",
+      "scenarios": 41,
+      "train_positives": 83,
+      "ml": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 127,
+        "tn": 20500,
+        "precision": null,
+        "recall": 0.0,
+        "false_positive_rate": 0.0
+      },
+      "rules": {
+        "tp": 127,
+        "fp": 0,
+        "fn": 0,
+        "tn": 20500,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0
+      }
+    }
+  ]
+}

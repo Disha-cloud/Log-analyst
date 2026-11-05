@@ -23,3 +23,7 @@ __pycache__/
 .coverage
 
 
+
+# Large or regenerable artifacts
+data_variants/
+model/detector_web.joblib

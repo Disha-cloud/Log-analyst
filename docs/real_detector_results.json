@@ -1,0 +1,161 @@
+{
+  "log": "/private/tmp/claude-501/-Users-disha-Desktop-log-analyst/242d8f5e-61b1-408b-89ce-5be0e7cabf31/scratchpad/loghub_ssh/SSH.log",
+  "repeats": 5,
+  "main": {
+    "ips_malicious": 367,
+    "ips_benign": 15,
+    "rows_malicious": 2480,
+    "rows_benign": 37,
+    "random_forest": {
+      "precision": {
+        "mean": 0.998,
+        "sd": 0.0
+      },
+      "recall": {
+        "mean": 0.99,
+        "sd": 0.0
+      },
+      "f1": {
+        "mean": 0.994,
+        "sd": 0.0
+      }
+    },
+    "benign_fp_rate_all": 0.162,
+    "reviewed_hard_negative_fp_rate": 0.287,
+    "reviewed_hard_negative_rows": 16,
+    "baseline_k3": {
+      "precision": 1.0,
+      "recall": 0.916,
+      "f1": 0.956,
+      "tp": 2272,
+      "fp": 1,
+      "fn": 208,
+      "tn": 36
+    },
+    "baseline_k5": {
+      "precision": 1.0,
+      "recall": 0.744,
+      "f1": 0.853,
+      "tp": 1844,
+      "fp": 0,
+      "fn": 636,
+      "tn": 37
+    }
+  },
+  "sensitivity_suspicious_as_benign": {
+    "ips_malicious": 367,
+    "ips_benign": 17,
+    "rows_malicious": 2480,
+    "rows_benign": 46,
+    "random_forest": {
+      "precision": {
+        "mean": 0.997,
+        "sd": 0.0
+      },
+      "recall": {
+        "mean": 0.991,
+        "sd": 0.001
+      },
+      "f1": {
+        "mean": 0.994,
+        "sd": 0.001
+      }
+    },
+    "benign_fp_rate_all": 0.178,
+    "reviewed_hard_negative_fp_rate": 0.272,
+    "reviewed_hard_negative_rows": 25,
+    "baseline_k3": {
+      "precision": 0.999,
+      "recall": 0.916,
+      "f1": 0.956,
+      "tp": 2272,
+      "fp": 3,
+      "fn": 208,
+      "tn": 43
+    },
+    "baseline_k5": {
+      "precision": 1.0,
+      "recall": 0.744,
+      "f1": 0.853,
+      "tp": 1844,
+      "fp": 0,
+      "fn": 636,
+      "tn": 46
+    }
+  },
+  "sensitivity_suspicious_as_malicious": {
+    "ips_malicious": 369,
+    "ips_benign": 15,
+    "rows_malicious": 2489,
+    "rows_benign": 37,
+    "random_forest": {
+      "precision": {
+        "mean": 0.996,
+        "sd": 0.0
+      },
+      "recall": {
+        "mean": 0.99,
+        "sd": 0.0
+      },
+      "f1": {
+        "mean": 0.993,
+        "sd": 0.0
+      }
+    },
+    "benign_fp_rate_all": 0.232,
+    "reviewed_hard_negative_fp_rate": 0.425,
+    "reviewed_hard_negative_rows": 16,
+    "baseline_k3": {
+      "precision": 1.0,
+      "recall": 0.914,
+      "f1": 0.955,
+      "tp": 2274,
+      "fp": 1,
+      "fn": 215,
+      "tn": 36
+    },
+    "baseline_k5": {
+      "precision": 1.0,
+      "recall": 0.741,
+      "f1": 0.851,
+      "tp": 1844,
+      "fp": 0,
+      "fn": 645,
+      "tn": 37
+    }
+  },
+  "top_features": [
+    [
+      "event_count",
+      0.255
+    ],
+    [
+      "events_per_min",
+      0.162
+    ],
+    [
+      "failed_pw",
+      0.157
+    ],
+    [
+      "bad_ratio",
+      0.099
+    ],
+    [
+      "pam_fail",
+      0.075
+    ],
+    [
+      "distinct_users",
+      0.065
+    ]
+  ],
+  "reviewed_hard_negative_flag_rates": [
+    0.0,
+    0.0,
+    0.3,
+    0.3,
+    0.33,
+    0.6
+  ]
+}

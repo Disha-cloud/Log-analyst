@@ -1,0 +1,23 @@
+[
+ {
+  "bucket":"1-2 failures",
+  "rows":57,
+  "hosts":57,
+  "ml_flag_rate":0.035,
+  "thr5_flag_rate":0.0
+ },
+ {
+  "bucket":"10+ failures",
+  "rows":221,
+  "hosts":214,
+  "ml_flag_rate":1.0,
+  "thr5_flag_rate":1.0
+ },
+ {
+  "bucket":"3-9 failures",
+  "rows":75,
+  "hosts":74,
+  "ml_flag_rate":0.96,
+  "thr5_flag_rate":0.707
+ }
+]

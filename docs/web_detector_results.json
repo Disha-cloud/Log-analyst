@@ -1,0 +1,69 @@
+{
+  "requests": 61065,
+  "normal": 36000,
+  "anomalous": 25065,
+  "duplicate_requests": 35457,
+  "train_rows": 47612,
+  "test_rows": 13453,
+  "test_anomalous": 5937,
+  "payload_forest": {
+    "precision": 0.6124,
+    "recall": 0.8922,
+    "f1": 0.7263,
+    "tp": 5297,
+    "fp": 3352,
+    "fn": 640,
+    "tn": 4164
+  },
+  "regex_rules": {
+    "precision": 1.0,
+    "recall": 0.012,
+    "f1": 0.0236,
+    "tp": 71,
+    "fp": 0,
+    "fn": 5866,
+    "tn": 7516
+  },
+  "header_only_forest_artifact_check": {
+    "precision": 0.5727,
+    "recall": 0.3667,
+    "f1": 0.4471,
+    "tp": 2177,
+    "fp": 1624,
+    "fn": 3760,
+    "tn": 5892
+  },
+  "top_features": [
+    [
+      "upper_ratio",
+      0.17
+    ],
+    [
+      "digit_ratio",
+      0.142
+    ],
+    [
+      "alpha_ratio",
+      0.124
+    ],
+    [
+      "pct_encoded",
+      0.095
+    ],
+    [
+      "max_val_len",
+      0.064
+    ],
+    [
+      "path_len",
+      0.06
+    ]
+  ],
+  "sample_missed_attacks": [
+    "GET http://localhost:8080/tienda1/publico/vaciar.jsp?B2A=Vaciar+carrito HTTP/1.1|",
+    "GET http://localhost:8080/tienda1/publico/vaciar.jsp?B2A=Vaciar+carrito HTTP/1.1|",
+    "GET http://localhost:8080/tienda1/publico/caracteristicas.jsp/ HTTP/1.1|",
+    "GET http://localhost:8080/tienda1/publico/vaciar.jsp?B2A=Vaciar+carrito HTTP/1.1|",
+    "GET http://localhost:8080/tienda1/publico/vaciar.jsp?B2A=Vaciar+carrito HTTP/1.1|"
+  ]
+}
