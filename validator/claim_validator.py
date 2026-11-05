@@ -15,7 +15,8 @@ STAGES = ["authentication_attempt", "successful_authentication", "privileged_act
           "exploitation_attempt", "large_data_transfer", "correlated_events"]
 
 PATTERNS = {
-    "authentication_attempt": re.compile(r"Failed password|authentication failure", re.I),
+    "authentication_attempt": re.compile(r"Failed password|authentication failure|Invalid user|maximum authentication attempts"
+                                           r"|Too many authentication failures", re.I),
     "successful_authentication": re.compile(r"Accepted (?:password|publickey)", re.I),
     "privileged_activity": re.compile(r"\bsudo:.*COMMAND=", re.I),
 }
@@ -60,6 +61,30 @@ FALLBACK_KEYWORDS = [
     ("authentication_attempt", ("brute", "failed login", "failed password")),
     ("successful_authentication", ("successful login", "login success", "accepted")),
 ]
+
+# Which attack stage each rule's finding belongs to (the stage names the LLM is asked to use).
+RULE_STAGE = {
+    "ssh_brute_force": "authentication_attempt",
+    "failure_then_success": "successful_authentication",
+    "probe_then_success": "successful_authentication",
+    "username_spraying": "authentication_attempt",
+    "slow_brute_force": "authentication_attempt",
+    "denied_sudo": "privileged_activity",
+    "auth_attempts_exhausted": "authentication_attempt",
+    "unusual_hour_login": "successful_authentication",
+    "login_then_sudo": "privileged_activity",
+    "sql_injection_indicator": "exploitation_attempt",
+    "path_traversal_indicator": "exploitation_attempt",
+    "large_data_transfer": "large_data_transfer",
+    "correlated_events": "correlated_events",
+}
+
+# Language that dismisses activity a rule has flagged as malicious. "unauthorized" is not a match.
+DISMISSAL_RE = re.compile(
+    r"false[\s-]+positive|(?<!un)\bauthori[sz]ed\b|do(?:es)?\s+not\s+(?:need\s+to\s+)?flag|"
+    r"don'?t\s+flag|(?:was|is|were|are|be|been|being)?\s*not\s+(?:be\s+)?flagged|"
+    r"not\s+(?:a\s+)?(?:malicious|compromise|suspicious|an?\s+attack)|no\s+action\s+(?:is\s+)?(?:needed|required)|"
+    r"pre-?approved|approved\s+by|\bbenign\b|\blegitimate\b|expected\s+behaviou?r", re.I)
 
 ID_RE = re.compile(r"^(?:(auth\.log|access\.log)\s*:\s*)?L0*(\d+)$", re.I)
 SUMMARY_ID_RE = re.compile(r"\b(?:(?:auth|access)\.log:)?L\d{3,5}\b")
@@ -194,6 +219,44 @@ def check_summary(summary, log_lines):
     return results
 
 
+def find_dismissals(text):
+    """Dismissal phrases found in free text, in order, de-duplicated."""
+    return list(dict.fromkeys(m.group(0).strip().lower() for m in DISMISSAL_RE.finditer(text or "")))
+
+
+def check_contradiction(claim_type, explanation, fired_rules):
+    """Flag a claim that dismisses activity whose rule fired. Returns a dict or None."""
+    rules = sorted(r for r in fired_rules if RULE_STAGE.get(r) == claim_type)
+    phrases = find_dismissals(explanation)
+    if not rules or not phrases:
+        return None
+    return {"phrases": phrases, "rules_fired": rules,
+            "reason": f"Claim says {', '.join(repr(p) for p in phrases)} but rule(s) "
+                      f"{', '.join(rules)} fired for this stage."}
+
+
+def check_summary_contradiction(summary, fired_rules):
+    phrases = find_dismissals(summary)
+    if not fired_rules or not phrases:
+        return None
+    return {"phrases": phrases, "rules_fired": sorted(fired_rules),
+            "reason": f"Summary says {', '.join(repr(p) for p in phrases)} but "
+                      f"{len(fired_rules)} rule(s) fired as attack indicators."}
+
+
+def check_stage_coverage(rule_findings, claims):
+    """UNDER-REPORTED when the rules found N distinct stages and the claims cover fewer than N."""
+    rule_stages = sorted({RULE_STAGE[f["rule_id"]] for f in rule_findings if f["rule_id"] in RULE_STAGE})
+    covered = {c.get("claim_type") for c in claims}
+    missing = [s for s in rule_stages if s not in covered]
+    n, got = len(rule_stages), len(rule_stages) - len(missing)
+    return {"status": "UNDER-REPORTED" if missing else "ok", "rule_stages": rule_stages,
+            "rule_stage_count": n, "claim_stages_covered": got, "missing_stages": missing,
+            "reason": (f"Rules found {n} attack stage(s); LLM claims cover {got}. "
+                       f"Missing: {', '.join(missing)}.") if missing
+                      else f"LLM claims cover all {n} stage(s) the rules found."}
+
+
 def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
     scenario_dir = Path(data_dir) / scenario_name
     analysis_path = scenario_dir / "llm_analysis.json"
@@ -201,13 +264,26 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
         raise FileNotFoundError(f"Missing {analysis_path}. Run: python -m llm.analyzer {scenario_name}")
     analysis = json.loads(analysis_path.read_text(encoding="utf-8"))
     log_lines = load_raw_lines(scenario_dir)
+    rule_findings = analysis.get("rule_findings", [])
+    sent = analysis.get("findings_sent_to_llm")
+    if sent:  # the LLM only saw the top findings; do not blame it for stages it was never shown
+        rule_findings = rule_findings[:sent]
+    fired_rules = {f["rule_id"] for f in rule_findings}
     claims = []
     for number, claim in enumerate(analysis.get("attack_chain", []), start=1):
+        result = verify_claim(claim, log_lines)
+        contradiction = check_contradiction(result["claim_type"], claim.get("explanation"), fired_rules)
+        if contradiction:  # a claim that dismisses a fired rule is not "verified"
+            result["evidence_status"] = result["status"]
+            result["status"] = "unverified"
+            result["reason"] = "CONTRADICTION: " + contradiction["reason"]
         claims.append({"claim_number": number, "stage": claim.get("stage"),
                        "mitre_id": claim.get("mitre_id"),
                        "explanation": claim.get("explanation"),
                        "evidence_ids": claim.get("evidence_ids", []),
-                       **verify_claim(claim, log_lines)})
+                       "contradiction": contradiction, **result})
+    coverage = check_stage_coverage(rule_findings, claims)
+    summary_contradiction = check_summary_contradiction(analysis.get("summary", ""), fired_rules)
     total = len(claims)
     verified = sum(c["status"] == "verified" for c in claims)
     mitre_statuses = [c["mitre_check"]["status"] for c in claims]
@@ -219,6 +295,9 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
         "mitre_mismatch": mitre_statuses.count("mismatch"),
         "mitre_missing_or_malformed": mitre_statuses.count("missing") + mitre_statuses.count("malformed"),
         "summary_checks": check_summary(analysis.get("summary", ""), log_lines),
+        "contradicted_claims": sum(c["contradiction"] is not None for c in claims),
+        "summary_contradiction": summary_contradiction,
+        "stage_coverage": coverage,
         "claims": claims,
         "limitations": [
             "Checks use heuristic text patterns, not semantic proof.",
@@ -227,6 +306,9 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
             "Summary is checked only for cited IDs, not for every statement.",
             "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
             "A matching indicator does not prove an attack succeeded.",
+            "Contradiction check is a phrase list: paraphrases ('nothing to worry about') are missed, "
+            "and a dismissal inside a legitimately cautious sentence can be a false flag.",
+            "Stage coverage counts a stage as covered if any claim is typed with it, whatever its evidence.",
         ],
     }
     if save:
@@ -234,7 +316,9 @@ def validate_scenario(scenario_name, data_dir=DATA_DIR, save=True):
                                                             encoding="utf-8")
     rate = report["verification_rate_percent"]
     print(f"{scenario_name}: {total} claims, {verified} verified, {total - verified} unverified, "
-          f"rate={'N/A' if rate is None else str(rate) + '%'}, MITRE match {report['mitre_match']}/{total}")
+          f"rate={'N/A' if rate is None else str(rate) + '%'}, MITRE match {report['mitre_match']}/{total}, "
+          f"contradicted {report['contradicted_claims']}"
+          f"{' + SUMMARY' if summary_contradiction else ''}, coverage {coverage['status']}")
     return report
 
 

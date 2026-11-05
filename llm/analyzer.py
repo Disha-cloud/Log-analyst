@@ -23,6 +23,11 @@ STAGES = ["authentication_attempt", "successful_authentication", "privileged_act
 RULE_TO_STAGE = {
     "ssh_brute_force": "authentication_attempt",
     "failure_then_success": "successful_authentication",
+    "probe_then_success": "successful_authentication",
+    "username_spraying": "authentication_attempt",
+    "slow_brute_force": "authentication_attempt",
+    "denied_sudo": "privileged_activity",
+    "auth_attempts_exhausted": "authentication_attempt",
     "unusual_hour_login": "successful_authentication",
     "login_then_sudo": "privileged_activity",
     "sql_injection_indicator": "exploitation_attempt",

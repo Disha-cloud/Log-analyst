@@ -1,6 +1,6 @@
 """Parse synthetic auth.log and Apache access.log into structured records."""
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 LOG_YEAR = 2026
@@ -17,9 +17,36 @@ ACCESS_RE = re.compile(
     r'(?:\s+"(?P<referer>[^"]*)"\s+"(?P<agent>[^"]*)")?\s*$')
 FAILED_RE = re.compile(r"Failed password for (?:invalid user )?(?P<user>\S+) from (?P<ip>\S+)")
 ACCEPTED_RE = re.compile(r"Accepted (?:password|publickey) for (?P<user>\S+) from (?P<ip>\S+)")
+SUDO_DENIED_RE = re.compile(r"user NOT in sudoers|command not allowed|\d+ incorrect password attempts?", re.I)
 SUDO_RE = re.compile(r"^\s*(?P<user>\S+)\s*:.*?COMMAND=(?P<command>.*)$")
+INVALID_USER_RE = re.compile(r"^Invalid user (?P<user>\S*) from (?P<ip>[\d.]+)")
 LOCK_RE = re.compile(r"account (?:temporarily )?locked", re.I)
 LOCK_USER_RE = re.compile(r"for user (\S+)")
+# Pre-authentication disconnects: the peer dropped the connection before logging in. Only lines marked
+# [preauth] (or the OpenSSH idle-handshake messages) count; a normal post-login disconnect does not.
+USER_PART = r"(?:(?:authenticating|invalid) user (?P<user>\S+) )?"
+PREAUTH_RES = [
+    re.compile(rf"Connection closed by {USER_PART}(?P<ip>[\d.]+)(?: port \d+)? \[preauth\]"),
+    re.compile(rf"Disconnected from {USER_PART}(?P<ip>[\d.]+)(?: port \d+)? \[preauth\]"),
+    re.compile(r"(?:error: )?Received disconnect from (?P<ip>[\d.]+)(?: port \d+)?:\s*\d+:.*\[preauth\]"),
+    re.compile(rf"Connection reset by {USER_PART}(?P<ip>[\d.]+)(?: port \d+)? \[preauth\]"),
+    re.compile(r"Did not receive identification string from (?P<ip>[\d.]+)"),
+    re.compile(r"Timeout before authentication for (?:connection from )?(?P<ip>[\d.]+)"),
+]
+# Authentication attempt limit reached (OpenSSH MaxAuthTries). The IP is absent from the
+# "Disconnecting: Too many authentication failures" variant, so it can be None.
+MAX_AUTH_RES = [
+    re.compile(r"maximum authentication attempts exceeded for (?:invalid user )?(?P<user>\S+) from (?P<ip>[\d.]+)"),
+    re.compile(r"Disconnecting(?: (?:authenticating|invalid) user (?P<user>\S+) (?P<ip>[\d.]+)(?: port \d+)?)?: "
+               r"Too many authentication failures(?: for (?P<user2>\S+))?"),
+]
+
+
+def first_match(patterns, message):
+    for pattern in patterns:
+        if (m := pattern.search(message)):
+            return m
+    return None
 
 
 def split_line_id(raw, line_number, filename):
@@ -56,11 +83,24 @@ def parse_auth_line(raw, line_number):
     elif (m := ACCEPTED_RE.search(message)):
         event_type, user, ip = "successful_authentication", m["user"], m["ip"]
     elif process == "sudo" and (m := SUDO_RE.search(message)):
-        event_type, user, command = "privileged_activity", m["user"], m["command"]
+        # A denied attempt ("user NOT in sudoers", "command not allowed", "N incorrect password attempts")
+        # is not privileged activity: the command did not run.
+        event_type = "sudo_denied" if SUDO_DENIED_RE.search(message) else "privileged_activity"
+        user, command = m["user"], m["command"]
     elif LOCK_RE.search(message):
         event_type = "account_locked"
         u = LOCK_USER_RE.search(message)
         user = u.group(1) if u else None
+    elif (m := INVALID_USER_RE.search(message)):
+        # sshd logs this once per attempt for a non-existent account; the follow-up
+        # "input_userauth_request: invalid user X [preauth]" line has no IP and stays other_auth_event
+        # so one attempt is not counted twice.
+        event_type, user, ip = "invalid_user", m["user"] or None, m["ip"]
+    elif (m := first_match(MAX_AUTH_RES, message)):
+        event_type = "max_auth_attempts"
+        user, ip = m["user"] or m.groupdict().get("user2"), m.groupdict().get("ip")
+    elif (m := first_match(PREAUTH_RES, message)):
+        event_type, user, ip = "preauth_disconnect", m.groupdict().get("user"), m["ip"]
     else:
         event_type = "other_auth_event"
     return {
@@ -105,7 +145,30 @@ def parse_file(path):
                 records.append(record)
             if error:
                 errors.append(error)
+    if path.name == "auth.log":
+        infer_missing_ips(records)
     return records, errors
+
+
+PID_WINDOW = timedelta(minutes=5)
+
+
+def infer_missing_ips(records):
+    """Fill the IP of a max-auth / preauth event that has none, from the latest earlier line of the same
+    sshd process (host + pid) within PID_WINDOW. Such records get ip_source="pid" so the inference is visible;
+    IPs read straight from the line stay ip_source="line"."""
+    last = {}
+    for r in records:
+        r["ip_source"] = "line" if r["ip"] else None
+        key = (r["host"], r["pid"])
+        if r["pid"] is None:
+            continue
+        if r["ip"] is None and r["event_type"] in ("max_auth_attempts", "preauth_disconnect"):
+            seen = last.get(key)
+            if seen and timedelta(0) <= r["timestamp"] - seen[1] <= PID_WINDOW:
+                r["ip"], r["ip_source"] = seen[0], "pid"
+        if r["ip"]:
+            last[key] = (r["ip"], r["timestamp"])
 
 
 def parse_scenario(scenario_dir):
