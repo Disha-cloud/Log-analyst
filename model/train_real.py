@@ -27,6 +27,8 @@ REPEATS = 5
 
 def review_overrides(treat_excluded_as=None):
     """Human-reviewed labels for the mixed (failures + successful login) IPs: {ip: benign|malicious|exclude}."""
+    if not REVIEW_CSV.exists():   # the review file holds real IPs and is kept local, not published
+        return {}
     d = pd.read_csv(REVIEW_CSV)
     return {r.ip: (treat_excluded_as if r.label_used == "exclude" and treat_excluded_as else r.label_used)
             for r in d.itertuples()}
@@ -97,12 +99,12 @@ def main(log_path, out_json=ROOT / "docs" / "real_detector_results.json"):
         if name == "main":
             main_lab, main_y, main_runs = lab, y, runs
     # per-IP view for the reviewed hard negatives (fraction of chunk rows flagged, averaged over repeats)
-    per_ip = {}
-    for ip, v in review_overrides().items():
+    per_ip = []
+    for ip in review_overrides():
         m = (main_lab.ip == ip).to_numpy()
         if m.any():
-            per_ip[ip] = round(float(np.mean([r[m].mean() for r in main_runs])), 2)
-    result["per_ip_flag_rate_reviewed_ips"] = per_ip
+            per_ip.append(round(float(np.mean([r[m].mean() for r in main_runs])), 2))
+    result["reviewed_hard_negative_flag_rates"] = sorted(per_ip)   # IPs deliberately not recorded
     model = new_forest().fit(main_lab[FEATURES].to_numpy(), main_y)
     result["top_features"] = [(n, round(float(v), 3)) for n, v in
                               sorted(zip(FEATURES, model.feature_importances_), key=lambda t: -t[1])[:6]]

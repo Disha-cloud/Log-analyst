@@ -10,7 +10,7 @@ Data (downloaded outside the repo): Loghub `SSH.tar.gz` and `Linux.tar.gz`, Zeno
   **Successful-login lines are excluded from every feature, and rows that contain only successful logins are dropped.**
 - Labels (weak, from whole-log behaviour): malicious = 10+ failed-auth events and no successful login (367 IPs);
   benign = successful login and zero failures, or a reviewed hard negative; the rest is ambiguous and excluded.
-- Reviewed hard negatives (`docs/real_label_review_mixed_ips.csv`): 6 IPs that fail and then succeed with one stable
+- Reviewed hard negatives (review file with real IPs, kept locally and not published): 6 IPs that fail and then succeed with one stable
   username. 3 were marked "candidate hard negative" by the reviewer; 3 "unknown" show the identical pattern and I
   labeled them benign. The 2 reviewer-marked "suspicious" IPs are left out of training (unresolved).
 - Evaluation: stratified 5-fold cross-validation grouped by IP (an IP is never in train and test), repeated 5 times.

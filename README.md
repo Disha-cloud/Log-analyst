@@ -3,7 +3,6 @@
 LLM-based security log analysis with evidence-linked, machine-verified claims.
 CS3405 Ethical Hacking and Penetration Testing hackathon.
 
-**Team:** NAME 1 (USN), NAME 2 (USN), NAME 3 (USN)
 **Problem statement:** LLM-Based Security Log Analysis and Threat Explanation
 
 ## Problem

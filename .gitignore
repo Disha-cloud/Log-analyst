@@ -27,3 +27,5 @@ __pycache__/
 # Large or regenerable artifacts
 data_variants/
 model/detector_web.joblib
+docs/real_label_review_mixed_ips.csv
+docs/real_label_review_mixed_ips_lines.txt
