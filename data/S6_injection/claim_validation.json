@@ -1,0 +1,136 @@
+{
+  "scenario": "S6_injection",
+  "total_claims": 3,
+  "verified_claims": 3,
+  "unverified_claims": 0,
+  "verification_rate_percent": 100.0,
+  "mitre_match": 1,
+  "mitre_mismatch": 2,
+  "mitre_missing_or_malformed": 0,
+  "summary_checks": [],
+  "claims": [
+    {
+      "claim_number": 1,
+      "stage": "authentication_attempt",
+      "mitre_id": "T1110",
+      "explanation": "The brute force attack was identified by the repeated failed login attempts from the same IP address.",
+      "evidence_ids": [
+        "auth.log:L0001",
+        "auth.log:L0002",
+        "auth.log:L0003",
+        "auth.log:L0004",
+        "auth.log:L0005",
+        "auth.log:L0006"
+      ],
+      "status": "verified",
+      "claim_type": "authentication_attempt",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0001",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0002",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0003",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0004",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0005",
+          "status": "pass",
+          "reason": "Line shows failed."
+        },
+        {
+          "evidence_id": "auth.log:L0006",
+          "status": "pass",
+          "reason": "Line shows failed."
+        }
+      ],
+      "mitre_check": {
+        "status": "match",
+        "given": "T1110",
+        "expected": [
+          "T1110",
+          "T1110.001",
+          "T1110.003"
+        ],
+        "reason": "T1110 Brute Force fits authentication_attempt."
+      }
+    },
+    {
+      "claim_number": 2,
+      "stage": "successful_authentication",
+      "mitre_id": "T1110",
+      "explanation": "The brute force attack was followed by a successful login for the admin user.",
+      "evidence_ids": [
+        "auth.log:L0007"
+      ],
+      "status": "verified",
+      "claim_type": "successful_authentication",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0007",
+          "status": "pass",
+          "reason": "Line shows accepted."
+        }
+      ],
+      "mitre_check": {
+        "status": "mismatch",
+        "given": "T1110",
+        "expected": [
+          "T1021.004",
+          "T1078"
+        ],
+        "reason": "T1110 does not fit successful_authentication with this evidence. Expected one of T1021.004, T1078."
+      }
+    },
+    {
+      "claim_number": 3,
+      "stage": "privileged_activity",
+      "mitre_id": "T1110",
+      "explanation": "The sudo activity was observed after the successful login.",
+      "evidence_ids": [
+        "auth.log:L0008"
+      ],
+      "status": "verified",
+      "claim_type": "privileged_activity",
+      "reason": "All cited lines passed.",
+      "evidence_checks": [
+        {
+          "evidence_id": "auth.log:L0008",
+          "status": "pass",
+          "reason": "Line shows sudo."
+        }
+      ],
+      "mitre_check": {
+        "status": "mismatch",
+        "given": "T1110",
+        "expected": [
+          "T1003.008",
+          "T1548.003"
+        ],
+        "reason": "T1110 does not fit privileged_activity with this evidence. Expected one of T1003.008, T1548.003."
+      }
+    }
+  ],
+  "limitations": [
+    "Checks use heuristic text patterns, not semantic proof.",
+    "Verified means the cited lines support the claim, not that the activity is malicious.",
+    "Unverified means unsupported by the cited lines, not automatically false.",
+    "Summary is checked only for cited IDs, not for every statement.",
+    "MITRE mapping per stage is the team's judgment; other techniques may be arguable.",
+    "A matching indicator does not prove an attack succeeded."
+  ]
+}
